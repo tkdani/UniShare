@@ -26,12 +26,12 @@ const NavBar = () => {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/Add">Add</Link>
+            <Link href="/saved">Saved</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/Saved">Saved</Link>
+            <Link href="/mynotes">My Notes</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
