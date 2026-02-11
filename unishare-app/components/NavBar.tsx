@@ -12,8 +12,10 @@ import {
 import Link from "next/link";
 import AvatarDropdown from "./AvatarDropdown";
 import SearchBar from "./SearchBar";
+import { Separator } from "@/components/ui/separator";
 
 import ModeToggle from "./ModeToggle";
+import DarkModeSwitch from "./DarkModeSwitch";
 
 const NavBar = () => {
   return (
@@ -31,7 +33,7 @@ const NavBar = () => {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/mynotes">My Notes</Link>
+            <Link href="/notes">Notes</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
@@ -39,9 +41,11 @@ const NavBar = () => {
         <NavigationMenuItem>
           <SearchBar />
         </NavigationMenuItem>
+        <Separator orientation="vertical" />
         <NavigationMenuItem>
-          <ModeToggle />
+          <DarkModeSwitch />
         </NavigationMenuItem>
+        <Separator orientation="vertical" />
         <AvatarDropdown />
       </NavigationMenuList>
     </NavigationMenu>
