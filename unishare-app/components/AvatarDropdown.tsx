@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DarkModeSwitch from "./DarkModeSwitch";
 
 const AvatarDropdown = () => {
   return (
