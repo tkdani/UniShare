@@ -19,7 +19,7 @@ import DarkModeSwitch from "./DarkModeSwitch";
 
 const NavBar = () => {
   return (
-    <NavigationMenu>
+    <NavigationMenu className="mb-4">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>

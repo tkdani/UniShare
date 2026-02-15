@@ -4,7 +4,7 @@ import React from "react";
 
 const notes = () => {
   return (
-    <div className="min-h-screen p-4">
+    <div className="p-4">
       <NavBar />
       <NotesPage />
     </div>

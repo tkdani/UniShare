@@ -10,11 +10,19 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Button } from "./ui/button";
+import { CirclePlus } from "lucide-react";
+import { Separator } from "./ui/separator";
 
 const UploadFileMenu = () => {
   return (
     <Dialog>
-      <DialogTrigger>Create Note</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button>
+          Create Notes
+          <CirclePlus />
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload a study material in any format</DialogTitle>

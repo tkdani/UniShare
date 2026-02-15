@@ -1,11 +1,12 @@
 import NavBar from "@/components/NavBar";
+import SavedNotes from "@/components/SavedNotes";
 import React from "react";
 
 const saved = () => {
   return (
-    <div className="min-h-screen p-4">
+    <div className="p-4">
       <NavBar />
-      <div>Saved Notes</div>
+      <SavedNotes />
     </div>
   );
 };
