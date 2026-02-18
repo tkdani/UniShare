@@ -6,6 +6,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { EmptyContent } from "./ui/empty";
+import EmptyNotes from "./EmptyNotes";
 
 const NotesToShow = () => {
   return (
@@ -25,7 +27,9 @@ const NotesToShow = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div>ss</div>
+      <div>
+        <EmptyNotes />
+      </div>
     </div>
   );
 };

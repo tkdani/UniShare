@@ -17,7 +17,7 @@ const EmptyNotes = () => {
         <EmptyMedia variant="icon">
           <FolderPlus />
         </EmptyMedia>
-        <EmptyTitle>No Saved Notes</EmptyTitle>
+        <EmptyTitle>No note to show</EmptyTitle>
         <EmptyDescription>
           You haven&apos;t saved any notes yet. Get started by uplodading your
           first study note or brows some notes.

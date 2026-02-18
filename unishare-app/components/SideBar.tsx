@@ -1,12 +1,6 @@
 import { Separator } from "./ui/separator";
 
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { SearchIcon } from "lucide-react";
-import {
   Field,
   FieldDescription,
   FieldGroup,
@@ -15,6 +9,7 @@ import {
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
+import { CollapsibleFileTree } from "./CollapsibleFileTree";
 
 type SideBarProps = {
   title: string;
@@ -51,8 +46,6 @@ const SideBar = ({ title }: SideBarProps) => {
             <Field orientation="horizontal">
               <Checkbox id="cbx-lecture" name="cbx-lecture" defaultChecked />
               <FieldLabel htmlFor="cbx-lecture">Lecture</FieldLabel>
-            </Field>
-            <Field orientation="horizontal">
               <Checkbox id="cbx-exam" name="cbx-exam" />
               <FieldLabel htmlFor="cbx-exam">exam</FieldLabel>
             </Field>
@@ -61,7 +54,7 @@ const SideBar = ({ title }: SideBarProps) => {
         </div>
       </div>
       <Separator />
-      <div></div>
+      <CollapsibleFileTree />
     </div>
   );
 };
