@@ -1,0 +1,52 @@
+"use client";
+
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/NavigationMenu";
+import Link from "next/link";
+import { Separator } from "./ui/Separator";
+import AvatarDropdown from "./AvatarDropdown";
+import SearchBar from "./SearchBar";
+import DarkModeSwitch from "./DarkModeSwitch";
+
+export default function NavBar() {
+  return (
+    <NavigationMenu className="mb-4">
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
+            render={<Link href="/Home">Home</Link>}
+          />
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
+            render={<Link href="/Saved">Saved</Link>}
+          />
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
+            render={<Link href="/Notes">Notes</Link>}
+          />
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <SearchBar />
+        </NavigationMenuItem>
+        <Separator orientation="vertical" />
+        <NavigationMenuItem>
+          <DarkModeSwitch />
+        </NavigationMenuItem>
+        <Separator orientation="vertical" />
+        <AvatarDropdown />
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
+}
