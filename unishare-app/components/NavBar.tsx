@@ -20,7 +20,7 @@ export default function NavBar() {
         <NavigationMenuItem>
           <NavigationMenuLink
             className={navigationMenuTriggerStyle()}
-            render={<Link href="/Home">Home</Link>}
+            render={<Link href="/">Home</Link>}
           />
         </NavigationMenuItem>
         <NavigationMenuItem>

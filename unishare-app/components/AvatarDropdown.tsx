@@ -6,6 +6,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 
@@ -42,28 +43,46 @@ export default function AvatarDropdown() {
   };
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <CurrentUserAvatar />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-32">
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" className="rounded-full">
+            {" "}
+            <CurrentUserAvatar />
+          </Button>
+        }
+      ></DropdownMenuTrigger>
+      <DropdownMenuContent className="w-32 mr-2 mt-1">
         <DropdownMenuGroup>
-          {user ? <DropdownMenuItem>Profile</DropdownMenuItem> : <></>}
-          <DropdownMenuItem>Docs</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          {user ? (
+            <>
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+            </>
+          ) : (
+            <></>
+          )}
+          <DropdownMenuItem>
+            Docs
+            <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            Settings
+            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {user ? (
             <DropdownMenuItem className="w-full" onClick={logout}>
               Log out
+              <DropdownMenuShortcut>⌘o</DropdownMenuShortcut>
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem>
               <Link className="w-full" href="/auth/login">
                 Log in
               </Link>
+              <DropdownMenuShortcut>⌘L</DropdownMenuShortcut>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
