@@ -54,10 +54,10 @@ export default function AvatarDropdown() {
       <DropdownMenuContent className="w-32 mr-2 mt-1">
         <DropdownMenuGroup>
           {user ? (
-            <>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/profile">Profile</Link>
               <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
-            </>
+            </DropdownMenuItem>
           ) : (
             <></>
           )}
@@ -73,7 +73,11 @@ export default function AvatarDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {user ? (
-            <DropdownMenuItem className="w-full" onClick={logout}>
+            <DropdownMenuItem
+              className="w-full"
+              onClick={logout}
+              variant={"destructive"}
+            >
               Log out
               <DropdownMenuShortcut>⌘o</DropdownMenuShortcut>
             </DropdownMenuItem>

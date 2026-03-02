@@ -22,7 +22,6 @@ export default function useCurrentUserImage() {
         .single();
 
       if (profileError || !profile?.avatar_url) {
-        console.error(profileError);
         return;
       }
 

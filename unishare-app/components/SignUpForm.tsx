@@ -20,6 +20,7 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -44,7 +45,8 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: `${window.location.origin}/`,
+          data: { username: username },
         },
       });
       if (error) throw error;
@@ -71,10 +73,21 @@ export function SignUpForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="example@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -84,6 +97,7 @@ export function SignUpForm({
                 <Input
                   id="password"
                   type="password"
+                  placeholder="******"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -96,6 +110,7 @@ export function SignUpForm({
                 <Input
                   id="repeat-password"
                   type="password"
+                  placeholder="******"
                   required
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
