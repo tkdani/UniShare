@@ -12,7 +12,7 @@ import UploadFileMenu from "./UploadFileMenu";
 import SideBar from "./SideBar";
 import NotesToShow from "./NotesToShow";
 
-export default function NotesPage() {
+export default async function NotesPage() {
   return (
     <div className="flex gap-3 justify-between">
       <SideBar />

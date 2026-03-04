@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,7 +29,7 @@ export default function NotesToShow() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div>hello</div>
+      <div>Hello</div>
     </div>
   );
 }

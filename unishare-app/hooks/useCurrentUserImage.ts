@@ -29,7 +29,6 @@ export default function useCurrentUserImage() {
         .from("avatars")
         .createSignedUrl(profile.avatar_url, 3600);
 
-      console.log(data?.signedUrl);
       setImage(data?.signedUrl ?? null);
     };
     fetchUserImage();

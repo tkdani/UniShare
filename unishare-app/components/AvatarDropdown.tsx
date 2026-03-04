@@ -47,7 +47,7 @@ export default function AvatarDropdown() {
         render={
           <Button variant="ghost" size="icon" className="rounded-full">
             {" "}
-            <CurrentUserAvatar />
+            <CurrentUserAvatar user={user} />
           </Button>
         }
       ></DropdownMenuTrigger>

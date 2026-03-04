@@ -1,7 +1,6 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { Console } from "console";
 import { useEffect, useState } from "react";
 
 export default function useCurrentUserName() {
@@ -16,7 +15,10 @@ export default function useCurrentUserName() {
       } = await supabase.auth.getUser();
       if (error) {
         console.error(error);
+        return;
       }
+      if (!user) return;
+
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("username,  full_name")

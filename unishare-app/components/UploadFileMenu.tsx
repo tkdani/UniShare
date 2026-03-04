@@ -44,7 +44,7 @@ export default function UploadFileMenu() {
       ? `${universityShort}/${course}/${lesson}`
       : `${universityShort}/${course}`,
     allowedMimeTypes: ["image/*"],
-    maxFiles: 2,
+    maxFiles: 1,
     maxFileSize: 1000 * 1000 * 10, // 10MB,
   });
 
@@ -57,7 +57,7 @@ export default function UploadFileMenu() {
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      } = supabase.storage.from("files").getPublicUrl(filePath);
 
       const uploadFile = async () => {
         const { error } = await supabase.from("user_files").insert({
@@ -67,20 +67,13 @@ export default function UploadFileMenu() {
           type: isClassType ? "Class" : "Exam",
           lesson,
           file_name: fileName,
-          public_url: publicUrl,
+          url: publicUrl,
         });
 
         if (error) console.log(error);
       };
 
       uploadFile();
-
-      const timer = setTimeout(() => {
-        fileSettings.setFiles([]);
-        fileSettings.setErrors([]);
-      }, 5000);
-
-      return () => clearTimeout(timer);
     }
   }, [fileSettings.isSuccess]);
 
