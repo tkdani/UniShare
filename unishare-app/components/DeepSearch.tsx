@@ -5,7 +5,7 @@ import { Input } from "./ui/Input";
 
 export default function DeepSearch() {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <Field className="max-w-xs">
         <FieldLabel htmlFor="search-uni">University</FieldLabel>
         <Input placeholder="Eötvös Loránd Tudományegyetem" id="search-uni" />
@@ -25,10 +25,12 @@ export default function DeepSearch() {
         />
       </Field>
       <div className="flex flex-row">
-        <FieldGroup className="flex-row">
+        <FieldGroup className="gap-2">
           <Field orientation="horizontal">
             <Checkbox id="cbx-lecture" name="cbx-lecture" defaultChecked />
             <FieldLabel htmlFor="cbx-lecture">Lecture</FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
             <Checkbox id="cbx-exam" name="cbx-exam" />
             <FieldLabel htmlFor="cbx-exam">exam</FieldLabel>
           </Field>

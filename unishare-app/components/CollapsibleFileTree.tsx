@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react";
 import { Button } from "./ui/Button";
 import {
@@ -5,40 +7,51 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/Collapsible";
+import { createClient } from "@/lib/supabase/server";
+import { convertShortname } from "@/lib/utils";
 
-type FileTreeItem = { name: string } | { name: string; items: FileTreeItem[] };
+type FileTreeItem =
+  | { name: string; path: string }
+  | { name: string; items: FileTreeItem[] };
 
-export default function CollapsibleFileTree() {
-  const fileTree: FileTreeItem[] = [
-    {
-      name: "ELTE",
-      items: [
-        {
-          name: "Webprogramozás",
-          items: [
-            {
-              name: "01",
-              items: [
-                { name: "elso_ora.txt" },
-                { name: "elso_ora_kod.tsx" },
-                { name: "elso_ora_felvetel.mp4" },
-              ],
-            },
-            {
-              name: "02",
-              items: [{ name: "masodik_ora.txt" }],
-            },
-            { name: "zh1.png" },
-            { name: "vizsga.png" },
-          ],
-        },
-        {
-          name: "Szakdoga",
-          items: [{ name: "dokumentáció.txt" }],
-        },
-      ],
-    },
-  ];
+function convertToFileTree(files: UserFile[]): FileTreeItem[] {
+  const grouped: Record<string, any> = {};
+
+  for (const file of files) {
+    const short_uni = convertShortname(file.university);
+    const keys = [short_uni, file.course, file.lesson].filter(
+      Boolean,
+    ) as string[];
+
+    let current = grouped;
+
+    for (const key of keys) {
+      if (!current[key]) current[key] = {};
+      current = current[key];
+    }
+
+    current[file.file_name] = null;
+  }
+
+  const buildTree = (node: Record<string, any>, path = ""): FileTreeItem[] => {
+    return Object.entries(node).map(([name, children]) => {
+      const currentPath = path ? `${path}/${name}` : name;
+
+      if (children === null) {
+        return { name, path: currentPath };
+      }
+      return {
+        name,
+        items: buildTree(children, currentPath),
+      };
+    });
+  };
+
+  return buildTree(grouped);
+}
+
+export default function CollapsibleFileTree({ files, onSetSelectedFile }: any) {
+  const fileTree: FileTreeItem[] = convertToFileTree(files);
 
   const renderItem = (fileItem: FileTreeItem) => {
     if ("items" in fileItem) {
@@ -69,6 +82,7 @@ export default function CollapsibleFileTree() {
     return (
       <Button
         key={fileItem.name}
+        onClick={() => onSetSelectedFile(fileItem.path)}
         variant="link"
         size="sm"
         className="text-foreground w-full justify-start gap-2"

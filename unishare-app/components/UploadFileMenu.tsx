@@ -11,12 +11,7 @@ import {
 } from "@/components/ui/Dialog";
 
 import { Input } from "@/components/ui/Input";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/Field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/Field";
 import { Button } from "./ui/Button";
 import { CirclePlus } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "./ui/RadioGroup";
@@ -25,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./Dropzone";
 import { useSupabaseUpload } from "@/hooks/useSupabaseUpload";
+import { convertShortname } from "@/lib/utils";
 
 export default function UploadFileMenu() {
   const [user, setUser] = useState<any>(null);
@@ -32,7 +28,6 @@ export default function UploadFileMenu() {
   const [university, setUniversity] = useState<string | null>(null);
   const [universityShort, setUniversityShort] = useState<string | null>(null);
   const [course, setCourse] = useState<string | null>(null);
-  const [courseShort, setCourseShort] = useState<string | null>(null);
   const [lesson, setLesson] = useState<number | null>(null);
   const [isClassType, setIsClassType] = useState<boolean>(true);
 
@@ -43,7 +38,12 @@ export default function UploadFileMenu() {
     path: lesson
       ? `${universityShort}/${course}/${lesson}`
       : `${universityShort}/${course}`,
-    allowedMimeTypes: ["image/*"],
+    allowedMimeTypes: [
+      "image/*",
+      "text/*",
+      "application/pdf",
+      "application/json",
+    ],
     maxFiles: 1,
     maxFileSize: 1000 * 1000 * 10, // 10MB,
   });
@@ -120,13 +120,7 @@ export default function UploadFileMenu() {
                 <FieldLabel htmlFor="uni-name">University</FieldLabel>
                 <Input
                   onChange={(e) => {
-                    setUniversityShort(
-                      e.target.value
-                        .split(" ")
-                        .map((w) => w[0])
-                        .join("")
-                        .toUpperCase(),
-                    );
+                    setUniversityShort(convertShortname(e.target.value));
                     setUniversity(e.target.value);
                   }}
                   id="uni-name"
@@ -137,7 +131,6 @@ export default function UploadFileMenu() {
                 <FieldLabel htmlFor="course-name">Course</FieldLabel>
                 <Input
                   onChange={(e) => {
-                    setCourseShort(e.target.value.slice(0, 3).toLowerCase());
                     setCourse(e.target.value);
                   }}
                   id="course-name"
@@ -192,10 +185,15 @@ export default function UploadFileMenu() {
           </DialogContent>
         </Dialog>
       ) : (
-        <Link href="/auth/login">
-          Create a note
-          <CirclePlus />
-        </Link>
+        <Button>
+          <Link
+            href="/auth/login"
+            className="flex justify-center items-center gap-2"
+          >
+            Create a note
+            <CirclePlus />
+          </Link>
+        </Button>
       )}
     </>
   );
