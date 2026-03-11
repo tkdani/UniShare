@@ -19,11 +19,19 @@ import DeepSearch from "./DeepSearch";
 import CollapsibleFileTree from "./CollapsibleFileTree";
 import { createClient } from "@/lib/supabase/client";
 
+type seachItemType = {
+  uni?: string;
+  course?: string;
+  class?: number;
+  name?: string;
+};
+
 export default function NotesPage() {
   const supabase = createClient();
   const [files, setFiles] = useState<UserFile[] | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [searchItem, setSearchItem] = useState<seachItemType | null>(null);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -33,8 +41,29 @@ export default function NotesPage() {
       setFiles(initialFiles);
     };
 
-    fetchFiles();
+    const hasFilter =
+      searchItem?.uni || searchItem?.course || searchItem?.class;
+    if (hasFilter) fetchFiles();
   }, []);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      let query = supabase.from("user_files").select("*");
+
+      if (searchItem?.uni)
+        query = query.ilike("university", `%${searchItem.uni}%`);
+      if (searchItem?.course)
+        query = query.ilike("course", `%${searchItem.course}%`);
+      if (searchItem?.class) query = query.eq("class", searchItem.class);
+      if (searchItem?.name)
+        query = query.ilike("file_name", `%${searchItem.name}%`);
+
+      const { data: files, error } = await query;
+      setFiles(files ?? null);
+    };
+
+    fetchFiles();
+  }, [searchItem]);
 
   useEffect(() => {
     const fetchFile = async (url: string) => {
@@ -62,7 +91,7 @@ export default function NotesPage() {
           Notes
         </div>
         <Separator />
-        <DeepSearch />
+        <DeepSearch onSearch={setSearchItem} />
         <Separator />
         {files && (
           <CollapsibleFileTree
