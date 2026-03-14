@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
-import { Document, Page } from "react-pdf";
 import useProfile from "@/hooks/useProfile";
 
 const languageColors: Record<string, string> = {

@@ -112,27 +112,24 @@ export default function NotesToShow({ file }: any) {
     totalLikes: number,
     id: string,
   ) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const userId = session?.user.id;
+    if (profile) {
+      if (liked) {
+        await supabase
+          .from("file_likes")
+          .insert({ user_id: profile.id, file_id: id });
+      } else {
+        await supabase
+          .from("file_likes")
+          .delete()
+          .eq("user_id", profile.id)
+          .eq("file_id", id);
+      }
 
-    if (liked) {
       await supabase
-        .from("file_likes")
-        .insert({ user_id: userId, file_id: id });
-    } else {
-      await supabase
-        .from("file_likes")
-        .delete()
-        .eq("user_id", userId)
-        .eq("file_id", id);
+        .from("user_files")
+        .update({ like_count: totalLikes })
+        .eq("id", id);
     }
-
-    await supabase
-      .from("user_files")
-      .update({ like_count: totalLikes })
-      .eq("id", id);
   };
 
   return (

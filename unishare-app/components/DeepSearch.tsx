@@ -9,6 +9,15 @@ export default function DeepSearch({ onSearch }: any) {
   const [course, setCourse] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [classNumber, setClassNumber] = useState<string | null>(null);
+  const [types, setTypes] = useState<string[]>(["Class"]);
+
+  const handleChange = (value: string, checked: boolean) => {
+    if (checked) {
+      setTypes((prev) => [...prev, value]);
+    } else {
+      setTypes((prev) => prev.filter((item) => item !== value));
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -58,12 +67,26 @@ export default function DeepSearch({ onSearch }: any) {
       <div className="flex flex-row">
         <FieldGroup className="gap-2">
           <Field orientation="horizontal">
-            <Checkbox id="cbx-lecture" name="cbx-lecture" defaultChecked />
+            <Checkbox
+              id="cbx-lecture"
+              name="cbx-lecture"
+              checked={types.includes("Class")}
+              onCheckedChange={(checked) =>
+                handleChange("Class", checked as boolean)
+              }
+            />
             <FieldLabel htmlFor="cbx-lecture">Lecture</FieldLabel>
           </Field>
           <Field orientation="horizontal">
-            <Checkbox id="cbx-exam" name="cbx-exam" />
-            <FieldLabel htmlFor="cbx-exam">exam</FieldLabel>
+            <Checkbox
+              id="cbx-exam"
+              name="cbx-exam"
+              checked={types.includes("Exam")}
+              onCheckedChange={(checked) =>
+                handleChange("Exam", checked as boolean)
+              }
+            />
+            <FieldLabel htmlFor="cbx-exam">Exam</FieldLabel>
           </Field>
         </FieldGroup>
         <Button
@@ -74,6 +97,7 @@ export default function DeepSearch({ onSearch }: any) {
               course: course,
               class: classNumber,
               name: name,
+              types: types,
             })
           }
         >

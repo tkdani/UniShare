@@ -1,7 +1,10 @@
 "use client";
-
-import { ArrowDownUpIcon } from "lucide-react";
-import { Button } from "./ui/Button";
+import useProfile from "@/hooks/useProfile";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import { Separator } from "./ui/Separator";
+import DeepSearch from "./DeepSearch";
+import CollapsibleFileTree from "./CollapsibleFileTree";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,71 +13,43 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/DropdownMenu";
+import { Button } from "./ui/Button";
+import { ArrowDownUpIcon } from "lucide-react";
 import UploadFileMenu from "./UploadFileMenu";
-import SideBar from "./SideBar";
 import NotesToShow from "./NotesToShow";
-import { useEffect, useState } from "react";
-import { Separator } from "./ui/Separator";
-import DeepSearch from "./DeepSearch";
-import CollapsibleFileTree from "./CollapsibleFileTree";
-import { createClient } from "@/lib/supabase/client";
 
-type seachItemType = {
-  uni?: string;
-  course?: string;
-  class?: number;
-  name?: string;
-  types: string[];
-};
-
-export default function NotesPage() {
+export default function SavedPage() {
   const supabase = createClient();
-  const [files, setFiles] = useState<UserFile[] | null>(null);
+  const profile = useProfile();
+  const [savedFiles, setSavedFiles] = useState<UserFile[] | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
-  const [searchItem, setSearchItem] = useState<seachItemType | null>(null);
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      const { data: initialFiles } = await supabase
-        .from("user_files")
-        .select("*");
-      setFiles(initialFiles);
-    };
+    if (profile) {
+      const fetchFiles = async () => {
+        const { data, error } = await supabase
+          .from("file_saves")
+          .select("*, user_files (*)")
+          .eq("user_id", profile.id);
+        if (error) console.log(error);
+        const files = data?.map((item) => item.user_files) ?? null;
+        setSavedFiles(files);
+      };
 
-    const hasFilter =
-      searchItem?.uni || searchItem?.course || searchItem?.class;
-    if (hasFilter) fetchFiles();
-  }, []);
-
-  useEffect(() => {
-    const fetchFiles = async () => {
-      let query = supabase.from("user_files").select("*");
-
-      if (searchItem?.uni)
-        query = query.ilike("university", `%${searchItem.uni}%`);
-      if (searchItem?.course)
-        query = query.ilike("course", `%${searchItem.course}%`);
-      if (searchItem?.class) query = query.eq("class", searchItem.class);
-      if (searchItem?.name)
-        query = query.ilike("file_name", `%${searchItem.name}%`);
-      if (searchItem?.types) query = query.in("type", searchItem.types);
-      const { data: files, error } = await query;
-
-      setFiles(files ?? null);
-    };
-
-    fetchFiles();
-  }, [searchItem]);
+      fetchFiles();
+    }
+  }, [profile]);
 
   useEffect(() => {
     const fetchFile = async (url: string) => {
       const { data, error } = await supabase
-        .from("user_files")
-        .select("*")
-        .eq("url", url)
+        .from("file_saves")
+        .select("*, user_files (*)")
+        .eq("user_files.url", url)
         .single();
-      setSelectedFile(data);
+      if (error) console.log(error);
+      setSelectedFile(data.user_files);
     };
 
     if (selectedFilePath) {
@@ -90,14 +65,12 @@ export default function NotesPage() {
     <div className="flex gap-3 justify-between">
       <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md">
         <div className="text-2xl font-extrabold tracking-tight text-balance">
-          Notes
+          Saved
         </div>
         <Separator />
-        <DeepSearch onSearch={setSearchItem} />
-        <Separator />
-        {files && (
+        {savedFiles && (
           <CollapsibleFileTree
-            files={files}
+            files={savedFiles}
             onSetSelectedFile={setSelectedFilePath}
           />
         )}
