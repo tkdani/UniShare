@@ -12,7 +12,6 @@ import { Comment, MediaViewer } from "./MediaViewer";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import useProfile from "@/hooks/useProfile";
-import useCurrentUserImage from "@/hooks/useCurrentUserImage";
 
 function getFileType(filename: string): "image" | "pdf" | "code" {
   if (
@@ -31,10 +30,19 @@ export default function NotesToShow({ file }: any) {
   const [alreadySaved, setAlreadySaved] = useState<boolean>(false);
   const [initialComments, setInitialComments] = useState<Comment[]>([]);
   const profile = useProfile();
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   useEffect(() => {
     const check = async () => {
       if (!profile) return;
+      const { data: blockedData } = await supabase
+        .from("blocked_users")
+        .select("id")
+        .eq("blocker_id", file.owner_id)
+        .eq("blocked_id", profile.id)
+        .maybeSingle();
+      setIsBlocked(!!blockedData);
+
       const { data: likedData } = await supabase
         .from("file_likes")
         .select("id")
@@ -58,14 +66,19 @@ export default function NotesToShow({ file }: any) {
 
       const commentsArr: Comment[] = await Promise.all(
         comments.map(async (c) => {
-          const { data: avatarData } = await supabase.storage
-            .from("avatars")
-            .createSignedUrl(c.profiles.avatar_url, 3600);
+          let avatarUrl: string | undefined = undefined;
+          if (c.profiles?.avatar_url) {
+            const { data: avatarData } = await supabase.storage
+              .from("avatars")
+              .createSignedUrl(c.profiles.avatar_url, 3600);
+            avatarUrl = avatarData?.signedUrl ?? undefined;
+          }
 
           return {
             id: c.id,
+            authorId: c.user_id,
             author: c.profiles.username,
-            avatar: avatarData?.signedUrl,
+            avatar: avatarUrl,
             text: c.content,
             createdAt: new Date(c.created_at),
           };
@@ -79,7 +92,7 @@ export default function NotesToShow({ file }: any) {
       setAlreadySaved(!!savedData);
     };
     check();
-  }, [profile]);
+  }, [file, profile]);
 
   const addComment = async (comment: string) => {
     if (!profile) return;
@@ -160,6 +173,7 @@ export default function NotesToShow({ file }: any) {
         </Breadcrumb>
       </div>
       <MediaViewer
+        key={file.url}
         fileName={file.file_name}
         src={file.url}
         type={getFileType(file.file_name)}
@@ -174,6 +188,8 @@ export default function NotesToShow({ file }: any) {
         onCommentAdd={(comment) => {
           addComment(comment);
         }}
+        postOwnerId={file.owner_id}
+        isBlocked={isBlocked}
       />
     </div>
   );

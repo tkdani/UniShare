@@ -45,7 +45,7 @@ export default function SavedPage() {
     const fetchFile = async (url: string) => {
       const { data, error } = await supabase
         .from("file_saves")
-        .select("*, user_files (*)")
+        .select("*, user_files!inner (*)")
         .eq("user_files.url", url)
         .single();
       if (error) console.log(error);

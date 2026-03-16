@@ -11,12 +11,22 @@ import {
   Image as ImageIcon,
   Copy,
   Check,
+  Sparkles,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
 import useProfile from "@/hooks/useProfile";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuPortal,
+  ContextMenuTrigger,
+} from "./ui/ContextMenu";
+import { createClient } from "@/lib/supabase/client";
 
 const languageColors: Record<string, string> = {
   py: "text-yellow-400",
@@ -36,11 +46,13 @@ const languageColors: Record<string, string> = {
 
 export interface Comment {
   id: string;
+  authorId?: string;
   author: string;
   avatar?: string;
   text: string;
   createdAt: Date;
 }
+type SidebarTab = "comments" | "ai";
 
 export interface MediaViewerProps {
   src: string;
@@ -55,6 +67,8 @@ export interface MediaViewerProps {
   onSaveChange?: (saved: boolean) => void;
   onCommentAdd?: (comment: string) => void;
   className?: string;
+  postOwnerId?: string;
+  isBlocked?: boolean;
 }
 
 export function MediaViewer({
@@ -70,6 +84,8 @@ export function MediaViewer({
   onSaveChange,
   onCommentAdd,
   className,
+  postOwnerId,
+  isBlocked,
 }: MediaViewerProps) {
   const [liked, setLiked] = React.useState(initialLiked);
   const [likes, setLikes] = React.useState(initialLikes);
@@ -79,6 +95,33 @@ export function MediaViewer({
   const [copied, setCopied] = React.useState(false);
   const [codeContent, setCodeContent] = React.useState("");
   const profile = useProfile();
+  const supabase = createClient();
+  const [blockedUserIds, setBlockedUserIds] = React.useState<Set<string>>(
+    new Set(),
+  );
+
+  const [activeTab, setActiveTab] = React.useState<SidebarTab>("comments");
+  // ai
+  const [aiSummary, setAiSummary] = React.useState("");
+  const [isLoadingSummary, setIsLoadingSummary] = React.useState(false);
+  const [summaryGenerated, setSummaryGenerated] = React.useState(false);
+  const [summaryError, setSummaryError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!profile) return;
+    const fetchBlockedUsers = async () => {
+      const { data } = await supabase
+        .from("blocked_users")
+        .select("blocked_id")
+        .eq("blocker_id", profile.id);
+
+      if (data) {
+        setBlockedUserIds(new Set(data.map((b) => b.blocked_id)));
+      }
+    };
+
+    fetchBlockedUsers();
+  }, [profile]);
 
   React.useEffect(() => {
     setComments(initialComments);
@@ -121,8 +164,41 @@ export function MediaViewer({
     }
   };
 
-  const handleAddComment = () => {
+  const handleBlock = async (blockedUserId: string | undefined) => {
+    if (!blockedUserId || !profile) return;
+
+    const { data: existing } = await supabase
+      .from("blocked_users")
+      .select("id")
+      .eq("blocker_id", profile.id)
+      .eq("blocked_id", blockedUserId)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("blocked_users").delete().eq("id", existing.id);
+      setBlockedUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(blockedUserId);
+        return next;
+      });
+    } else {
+      await supabase
+        .from("blocked_users")
+        .insert({ blocker_id: profile.id, blocked_id: blockedUserId });
+      setBlockedUserIds((prev) => new Set(prev).add(blockedUserId));
+    }
+  };
+
+  const handleAddComment = async () => {
     if (!newComment.trim() || !profile) return;
+    const { data: blockData } = await supabase
+      .from("blocked_users")
+      .select("id")
+      .eq("blocker_id", postOwnerId)
+      .eq("blocked_id", profile.id)
+      .maybeSingle();
+
+    if (blockData) return;
     const comment: Comment = {
       id: Date.now().toString(),
       author: profile?.username,
@@ -138,6 +214,76 @@ export function MediaViewer({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleAddComment();
+    }
+  };
+
+  const generateSummary = async () => {
+    setIsLoadingSummary(true);
+    setAiSummary("");
+    setSummaryError(null);
+
+    try {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: src,
+          fileName,
+          fileType: type,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to generate summary");
+      }
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("data:")) {
+            const data = trimmed.slice(5).trim();
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === "text-delta" && parsed.delta) {
+                fullContent += parsed.delta;
+                setAiSummary(fullContent);
+              }
+            } catch {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      setSummaryGenerated(true);
+    } catch (error) {
+      setSummaryError(
+        error instanceof Error ? error.message : "Failed to generate summary",
+      );
+    } finally {
+      setIsLoadingSummary(false);
+    }
+  };
+
+  const handleTabChange = (tab: SidebarTab) => {
+    setActiveTab(tab);
+    if (tab === "ai" && !summaryGenerated && !isLoadingSummary) {
+      generateSummary();
     }
   };
 
@@ -300,7 +446,12 @@ export function MediaViewer({
             {comments.length > 0 && (
               <div className="mt-3 space-y-3 max-h-48 overflow-y-auto">
                 {comments.map((comment) => (
-                  <CommentItem key={comment.id} comment={comment} />
+                  <CommentItem
+                    key={comment.id}
+                    comment={comment}
+                    onBlock={handleBlock}
+                    isBlockedUser={blockedUserIds.has(comment.authorId ?? "")}
+                  />
                 ))}
               </div>
             )}
@@ -336,78 +487,156 @@ export function MediaViewer({
           </Button>
         </div>
 
-        {/* Comments Header */}
-        <div className="px-4 py-3 border-b">
-          <h3 className="font-medium text-sm text-card-foreground flex items-center gap-2">
-            <MessageCircle className="size-4" />
+        <div className="flex border-b">
+          <button
+            onClick={() => handleTabChange("comments")}
+            className={cn(
+              "flex-1 py-2.5 text-sm font-medium transition-colors",
+              activeTab === "comments"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <MessageCircle className="size-4 inline mr-1.5" />
             Comments ({comments.length})
-          </h3>
+          </button>
+          <button
+            onClick={() => handleTabChange("ai")}
+            className={cn(
+              "flex-1 py-2.5 text-sm font-medium transition-colors",
+              activeTab === "ai"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Sparkles className="size-4 inline mr-1.5" />
+            AI Summary
+          </button>
         </div>
 
-        {/* Comments List */}
-        <div className="flex-1 overflow-y-auto">
-          {comments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-              <MessageCircle className="size-10 text-muted-foreground/50 mb-3" />
-              <p className="text-sm text-muted-foreground">No comments yet</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
-                Be the first to comment
-              </p>
-            </div>
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {activeTab === "comments" ? (
+            <>
+              {/* Comments List */}
+              <div className="flex-1 overflow-y-auto">
+                {comments.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+                    <MessageCircle className="size-10 text-muted-foreground/50 mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      No comments yet
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      Be the first to comment
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {comments.map((comment) => (
+                      <CommentItem
+                        key={comment.id}
+                        comment={comment}
+                        currentUserId={profile?.id}
+                        onBlock={() => handleBlock(comment.authorId)}
+                        isBlockedUser={blockedUserIds.has(
+                          comment.authorId ?? "",
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Add Comment Input */}
+              {isBlocked ? (
+                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-muted/50 border border-dashed">
+                  <span className="text-xs text-muted-foreground">
+                    You are blocked by the user.
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="Add a comment..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="flex-1"
+                  />
+                  <Button
+                    size="icon"
+                    onClick={handleAddComment}
+                    disabled={!newComment.trim()}
+                  >
+                    <Send className="size-4" />
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="divide-y">
-              {comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} />
-              ))}
+            <div className="flex-1 p-4 overflow-y-auto">
+              <AISummaryContent
+                summary={aiSummary}
+                isLoading={isLoadingSummary}
+                error={summaryError}
+                onRegenerate={generateSummary}
+              />
             </div>
           )}
-        </div>
-
-        {/* Add Comment Input */}
-        <div className="p-4 border-t mt-auto">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1"
-            />
-            <Button
-              size="icon"
-              onClick={handleAddComment}
-              disabled={!newComment.trim()}
-            >
-              <Send className="size-4" />
-            </Button>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function CommentItem({ comment }: { comment: Comment }) {
+function CommentItem({
+  comment,
+  currentUserId,
+  onBlock,
+  isBlockedUser,
+}: {
+  comment: Comment;
+  currentUserId?: string;
+  onBlock?: (userId: string | undefined) => void;
+  isBlockedUser: boolean;
+}) {
   return (
-    <div className="flex gap-3 px-4 py-3">
-      <Avatar className="size-8 shrink-0">
-        <AvatarImage src={comment.avatar} alt={comment.author} />
-        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-          {comment.author.slice(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className="font-medium text-sm text-card-foreground">
-            {comment.author}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {formatTimeAgo(comment.createdAt)}
-          </span>
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <div className="flex gap-3 px-4 py-3 cursor-pointer">
+          <Avatar className="size-8 shrink-0">
+            <AvatarImage src={comment.avatar} alt={comment.author} />
+            <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+              {comment.author.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span className="font-medium text-sm text-card-foreground">
+                {comment.author}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {formatTimeAgo(comment.createdAt)}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {comment.text}
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5">{comment.text}</p>
-      </div>
-    </div>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent>
+        {currentUserId && currentUserId !== comment.authorId ? (
+          <ContextMenuItem
+            variant="destructive"
+            onClick={() => onBlock?.(comment.authorId!)}
+          >
+            {isBlockedUser ? "Unblock" : "Block"}
+          </ContextMenuItem>
+        ) : (
+          <ContextMenuItem disabled>No action</ContextMenuItem>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
@@ -423,4 +652,86 @@ function formatTimeAgo(date: Date): string {
   if (diffMin < 60) return `${diffMin}m`;
   if (diffHour < 24) return `${diffHour}h`;
   return `${diffDay}d`;
+}
+
+function AISummaryContent({
+  summary,
+  isLoading,
+  error,
+  onRegenerate,
+}: {
+  summary: string;
+  isLoading: boolean;
+  error?: string | null;
+  onRegenerate: () => void;
+}) {
+  if (isLoading && !summary) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <div className="relative">
+          <Sparkles className="size-10 text-primary animate-pulse" />
+        </div>
+        <p className="text-sm text-muted-foreground mt-4">
+          Generating summary...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="size-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+            <Sparkles className="size-4 text-destructive" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-destructive leading-relaxed">{error}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Please check that AI Gateway is properly configured.
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRegenerate}
+          className="w-full gap-2"
+        >
+          <RefreshCw className="size-4" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <Sparkles className="size-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-card-foreground leading-relaxed">
+            {summary || "Click to generate an AI summary of this file."}
+          </p>
+          {isLoading && (
+            <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-0.5" />
+          )}
+        </div>
+      </div>
+
+      {summary && !isLoading && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRegenerate}
+          className="w-full gap-2"
+        >
+          <RefreshCw className="size-4" />
+          Regenerate
+        </Button>
+      )}
+    </div>
+  );
 }
