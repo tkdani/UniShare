@@ -18,6 +18,7 @@ import { Separator } from "./ui/Separator";
 import DeepSearch from "./DeepSearch";
 import CollapsibleFileTree from "./CollapsibleFileTree";
 import { createClient } from "@/lib/supabase/client";
+import useProfile from "@/hooks/useProfile";
 
 type seachItemType = {
   uni?: string;
@@ -33,6 +34,7 @@ export default function NotesPage() {
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [searchItem, setSearchItem] = useState<seachItemType | null>(null);
+  const profile = useProfile();
 
   useEffect(() => {
     const fetchFiles = async () => {

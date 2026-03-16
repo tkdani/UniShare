@@ -4,4 +4,5 @@ type User = {
   username: string;
   full_name?: string;
   avatar_url?: string;
+  is_banned: boolean;
 };

@@ -190,7 +190,7 @@ export function MediaViewer({
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || !profile) return;
+    if (!newComment.trim() || !profile || profile.is_banned) return;
     const { data: blockData } = await supabase
       .from("blocked_users")
       .select("id")
@@ -397,6 +397,7 @@ export function MediaViewer({
         <div className="lg:hidden border-t">
           <div className="flex items-center gap-2 px-4 py-3">
             <Button
+              disabled={profile?.is_banned}
               variant="ghost"
               size="sm"
               onClick={handleLike}
@@ -428,6 +429,7 @@ export function MediaViewer({
           <div className="border-t px-4 py-3">
             <div className="flex items-center gap-2">
               <Input
+                disabled={profile?.is_banned}
                 placeholder="Add a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
@@ -464,6 +466,7 @@ export function MediaViewer({
         {/* Actions */}
         <div className="flex items-center gap-2 p-4 border-b">
           <Button
+            disabled={profile?.is_banned}
             variant={liked ? "default" : "outline"}
             size="sm"
             onClick={handleLike}
@@ -555,6 +558,7 @@ export function MediaViewer({
               ) : (
                 <div className="flex items-center gap-2">
                   <Input
+                    disabled={profile?.is_banned}
                     placeholder="Add a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}

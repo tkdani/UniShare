@@ -21,6 +21,7 @@ import Link from "next/link";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./Dropzone";
 import { useSupabaseUpload } from "@/hooks/useSupabaseUpload";
 import { convertShortname } from "@/lib/utils";
+import useProfile from "@/hooks/useProfile";
 
 export default function UploadFileMenu() {
   const [user, setUser] = useState<any>(null);
@@ -30,6 +31,7 @@ export default function UploadFileMenu() {
   const [course, setCourse] = useState<string | null>(null);
   const [lesson, setLesson] = useState<number | null>(null);
   const [isClassType, setIsClassType] = useState<boolean>(true);
+  const profile = useProfile();
 
   const isFormValid = university && course;
 
@@ -101,7 +103,7 @@ export default function UploadFileMenu() {
         <Dialog>
           <DialogTrigger
             render={
-              <Button>
+              <Button disabled={profile?.is_banned}>
                 Create Notes
                 <CirclePlus />
               </Button>
