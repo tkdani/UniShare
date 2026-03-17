@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/DropdownMenu";
 import UploadFileMenu from "./UploadFileMenu";
-import SideBar from "./SideBar";
 import NotesToShow from "./NotesToShow";
 import { useEffect, useState } from "react";
 import { Separator } from "./ui/Separator";
@@ -19,6 +18,7 @@ import DeepSearch from "./DeepSearch";
 import CollapsibleFileTree from "./CollapsibleFileTree";
 import { createClient } from "@/lib/supabase/client";
 import useProfile from "@/hooks/useProfile";
+import { useSearchParams } from "next/navigation";
 
 type seachItemType = {
   uni?: string;
@@ -34,7 +34,36 @@ export default function NotesPage() {
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [searchItem, setSearchItem] = useState<seachItemType | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "university" | "course" | "file_name" | null
+  >(null);
   const profile = useProfile();
+
+  const searchParams = useSearchParams();
+
+  const fetchFile = async (url: string) => {
+    const { data } = await supabase
+      .from("user_files")
+      .select("*")
+      .eq("url", url)
+      .single();
+    setSelectedFile(data);
+  };
+
+  useEffect(() => {
+    const fileUrl = searchParams.get("file");
+    if (fileUrl) {
+      fetchFile(decodeURIComponent(fileUrl));
+    }
+  }, [searchParams]);
+
+  const sortedFiles = sortBy
+    ? [...(files ?? [])].sort((a, b) => {
+        const valA = a[sortBy] ?? "";
+        const valB = b[sortBy] ?? "";
+        return valA.localeCompare(valB);
+      })
+    : files;
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -99,7 +128,7 @@ export default function NotesPage() {
         <Separator />
         {files && (
           <CollapsibleFileTree
-            files={files}
+            files={sortedFiles}
             onSetSelectedFile={setSelectedFilePath}
           />
         )}
@@ -117,9 +146,27 @@ export default function NotesPage() {
             <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                <DropdownMenuItem>University</DropdownMenuItem>
-                <DropdownMenuItem>Course</DropdownMenuItem>
-                <DropdownMenuItem>Class</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("university");
+                  }}
+                >
+                  University
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("course");
+                  }}
+                >
+                  Course
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("file_name");
+                  }}
+                >
+                  Name
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

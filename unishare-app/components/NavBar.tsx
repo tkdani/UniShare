@@ -10,8 +10,8 @@ import {
 import Link from "next/link";
 import { Separator } from "./ui/Separator";
 import AvatarDropdown from "./AvatarDropdown";
-import SearchBar from "./SearchBar";
 import DarkModeSwitch from "./DarkModeSwitch";
+import { SearchBar } from "./SearchBar";
 
 export default function NavBar() {
   return (

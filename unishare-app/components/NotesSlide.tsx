@@ -3,7 +3,11 @@ import FileCard from "./FileCard";
 
 export default async function NotesSlide() {
   const supabase = await createClient();
-  const { data: initial_files } = await supabase.from("user_files").select("*");
+  const { data: initial_files } = await supabase
+    .from("user_files")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(12);
   return (
     <div className="grid grid-cols-6 border rounded p-4">
       {initial_files ? (
