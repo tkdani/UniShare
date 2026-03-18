@@ -6,7 +6,7 @@ import { Crown, Upload } from "lucide-react";
 interface TopUser {
   id: string;
   username: string;
-  avatar_url: string | null;
+  signedAvatarUrl: string | null;
   full_name: string | null;
   uploadCount: number;
 }
@@ -22,14 +22,14 @@ export function TopUsers({ users }: TopUsersProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Crown className="h-5 w-5" />
-            Top Feltoltok
+            Top uploaders
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Upload className="h-12 w-12 text-muted-foreground/50" />
             <p className="mt-4 text-sm text-muted-foreground">
-              Meg nincsenek feltoltok
+              No uploaders yet
             </p>
           </div>
         </CardContent>
@@ -42,7 +42,7 @@ export function TopUsers({ users }: TopUsersProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Crown className="h-5 w-5" />
-          Top Feltoltok
+          Top uploaders
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -70,7 +70,7 @@ export function TopUsers({ users }: TopUsersProps) {
 
               {/* Avatar */}
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user.avatar_url || undefined} />
+                <AvatarImage src={user.signedAvatarUrl || undefined} />
                 <AvatarFallback>
                   {user.username[0].toUpperCase()}
                 </AvatarFallback>

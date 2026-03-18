@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { FileText, Heart, Clock } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 interface FileItem {
   id: string;
@@ -13,7 +14,8 @@ interface FileItem {
   lesson: string | null;
   like_count: number;
   created_at: string;
-  owner: { username: string; avatar_url: string | null }[];
+  url: string;
+  owner: { username: string; avatar_url: string | null };
 }
 
 interface RecentFilesProps {
@@ -25,23 +27,26 @@ function formatTimeAgo(dateString: string): string {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return "most";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} perce`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} oraja`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)} napja`;
+  if (diffInSeconds < 60) return "now";
+  if (diffInSeconds < 3600) {
+    const t = Math.floor(diffInSeconds / 366000);
+    return t + ` ${t > 1 ? "minutes" : "minute"}`;
+  }
+  if (diffInSeconds < 86400) {
+    const t = Math.floor(diffInSeconds / 3600);
+    return t + ` ${t > 1 ? "hours" : "hour"}`;
+  }
+  if (diffInSeconds < 604800) {
+    const t = Math.floor(diffInSeconds / 86400);
+    return t + ` ${t > 1 ? "days" : "day"}`;
+  }
   return date.toLocaleDateString("hu-HU");
 }
 
 function getTypeColor(type: string): string {
   const colors: Record<string, string> = {
-    jegyzet: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-    vizsga: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    zh: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-    eloadas:
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    gyakorlat:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+    class: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    exam: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
   };
   return (
     colors[type.toLowerCase()] ||
@@ -49,7 +54,19 @@ function getTypeColor(type: string): string {
   );
 }
 
-export function RecentFiles({ files }: RecentFilesProps) {
+export async function RecentFiles({ files }: RecentFilesProps) {
+  const supabase = await createClient();
+  const usersWithAvatars = await Promise.all(
+    files.map(async (files) => {
+      if (!files.owner.avatar_url) return { ...files, signedAvatarUrl: null };
+
+      const { data } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(files.owner.avatar_url, 3600);
+
+      return { ...files, signedAvatarUrl: data?.signedUrl ?? null };
+    }),
+  );
   if (files.length === 0) {
     return (
       <Card>
@@ -79,10 +96,10 @@ export function RecentFiles({ files }: RecentFilesProps) {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 sm:grid-cols-2">
-          {files.map((file) => (
+          {usersWithAvatars.map((file) => (
             <Link
               key={file.id}
-              href={`/notes?file=${encodeURIComponent(file.id)}`}
+              href={`/notes?file=${encodeURIComponent(file.url)}`}
               className="group block"
             >
               <div className="rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md">
@@ -111,15 +128,13 @@ export function RecentFiles({ files }: RecentFilesProps) {
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6 w-6">
-                      <AvatarImage
-                        src={file.owner?.[0]?.avatar_url || undefined}
-                      />
+                      <AvatarImage src={file.signedAvatarUrl || undefined} />
                       <AvatarFallback className="text-xs">
-                        {file.owner?.[0]?.username?.[0]?.toUpperCase() || "?"}
+                        {file.owner?.username?.[0]?.toUpperCase() || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-xs text-muted-foreground">
-                      {file.owner?.[0]?.username || "Unknown"}
+                      {file.owner?.username || "Unknown"}
                     </span>
                   </div>
 
