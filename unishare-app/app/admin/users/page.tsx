@@ -1,4 +1,5 @@
 import { BanUserButton } from "@/components/BanUserButton";
+import { DeleteUserButton } from "@/components/DeleteUserButton";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminUsers() {
@@ -41,11 +42,18 @@ export default async function AdminUsers() {
                   )}
                 </td>
                 <td className="p-4 text-right">
-                  <BanUserButton
-                    userId={user.id}
-                    isBanned={user.is_banned}
-                    isAdmin={user.is_admin}
-                  />
+                  <div className="flex items-center justify-end gap-2">
+                    <BanUserButton
+                      userId={user.id}
+                      isBanned={user.is_banned}
+                      isAdmin={user.is_admin}
+                    />
+                    <DeleteUserButton
+                      userId={user.id}
+                      username={user.username}
+                      isAdmin={user.is_admin}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

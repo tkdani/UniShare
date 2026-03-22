@@ -5,4 +5,6 @@ type User = {
   full_name?: string;
   avatar_url?: string;
   is_banned: boolean;
+  is_admin: boolean;
+  email: string;
 };

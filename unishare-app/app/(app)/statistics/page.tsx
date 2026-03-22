@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import NavBar from "@/components/NavBar";
 import { StatsCards } from "@/components/StatsCard";
+import { createClient } from "@/lib/supabase/server";
 import { RecentFiles } from "@/components/RecentFiles";
 import { TopUsers } from "@/components/TopUsers";
-import NavBar from "@/components/NavBar";
 
 async function getStats() {
   const supabase = await createClient();
@@ -254,42 +254,27 @@ async function getTopUsers() {
   return topUploadersWithAvatars;
 }
 
-export default async function HomePage() {
+export default async function StatsPage() {
   const [stats, recentFiles, topUsers] = await Promise.all([
     getStats(),
     getRecentFiles(),
     getTopUsers(),
   ]);
-
   return (
-    <main className="min-h-screen bg-background p-4">
-      <NavBar />
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            UniShare
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            UniShare is a platform built for university students to share and
-            discover learning materials. Upload your notes, assignments, and
-            study files and explore what others have shared across courses and
-            universities. Like the content you find helpful, save it for later,
-            and join the conversation with comments.
-          </p>
+    <div>
+      <div className="text-3xl font-bold tracking-tight text-foreground pb-2">
+        Statistics
+      </div>
+      <StatsCards stats={stats} />
+      <div className="mt-8 grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentFiles files={recentFiles} />
         </div>
 
-        <StatsCards stats={stats} />
-
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <RecentFiles files={recentFiles} />
-          </div>
-
-          <div className="lg:col-span-1">
-            <TopUsers users={topUsers} />
-          </div>
+        <div className="lg:col-span-1">
+          <TopUsers users={topUsers} />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -54,7 +54,7 @@ export function StatsCards({ stats }: StatsProps) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Osszes File</CardTitle>
+            <CardTitle className="text-sm font-medium">All Files</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -65,7 +65,7 @@ export function StatsCards({ stats }: StatsProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Osszes Like</CardTitle>
+            <CardTitle className="text-sm font-medium">All Likes</CardTitle>
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -76,9 +76,7 @@ export function StatsCards({ stats }: StatsProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Osszes Komment
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">All Comments</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

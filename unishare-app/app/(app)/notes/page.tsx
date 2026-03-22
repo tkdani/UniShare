@@ -1,7 +1,13 @@
 "use client";
 
 import { ArrowDownUpIcon } from "lucide-react";
-import { Button } from "./ui/Button";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import useProfile from "@/hooks/useProfile";
+import { useSearchParams } from "next/navigation";
+import { Separator } from "@/components/ui/Separator";
+import DeepSearch from "@/components/DeepSearch";
+import CollapsibleFileTree from "@/components/CollapsibleFileTree";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,16 +15,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "./ui/DropdownMenu";
-import UploadFileMenu from "./UploadFileMenu";
-import NotesToShow from "./NotesToShow";
-import { useEffect, useState } from "react";
-import { Separator } from "./ui/Separator";
-import DeepSearch from "./DeepSearch";
-import CollapsibleFileTree from "./CollapsibleFileTree";
-import { createClient } from "@/lib/supabase/client";
-import useProfile from "@/hooks/useProfile";
-import { useSearchParams } from "next/navigation";
+} from "@/components/ui/DropdownMenu";
+import { Button } from "@/components/ui/Button";
+import UploadFileMenu from "@/components/UploadFileMenu";
+import NotesToShow from "@/components/NotesToShow";
 
 type seachItemType = {
   uni?: string;

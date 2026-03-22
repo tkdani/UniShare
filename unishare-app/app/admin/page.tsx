@@ -1,6 +1,10 @@
+import { getProfile } from "@/lib/getProfile";
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
+  const profile = await getProfile();
+  if (!profile?.is_admin || !profile) redirect("/");
   const supabase = await createClient();
 
   const [{ count: userCount }, { count: fileCount }, { count: commentCount }] =
@@ -20,7 +24,6 @@ export default async function AdminDashboard() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
-      {/* Stat kártyák */}
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Users", value: userCount, icon: "👥" },
@@ -35,7 +38,6 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Top fájlok */}
       <div className="rounded-xl border bg-card p-6">
         <h2 className="font-semibold mb-4">Most liked files</h2>
         <table className="w-full text-sm">

@@ -2,9 +2,9 @@
 import useProfile from "@/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import { Separator } from "./ui/Separator";
-import DeepSearch from "./DeepSearch";
-import CollapsibleFileTree from "./CollapsibleFileTree";
+import { ArrowDownUpIcon } from "lucide-react";
+import { Separator } from "@/components/ui/Separator";
+import CollapsibleFileTree from "@/components/CollapsibleFileTree";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "./ui/DropdownMenu";
-import { Button } from "./ui/Button";
-import { ArrowDownUpIcon } from "lucide-react";
-import UploadFileMenu from "./UploadFileMenu";
-import NotesToShow from "./NotesToShow";
+} from "@/components/ui/DropdownMenu";
+import { Button } from "@/components/ui/Button";
+import UploadFileMenu from "@/components/UploadFileMenu";
+import NotesToShow from "@/components/NotesToShow";
 
 export default function SavedPage() {
   const supabase = createClient();

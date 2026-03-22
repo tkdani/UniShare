@@ -11,6 +11,12 @@ export default function AdminLayout({
           ADMIN
         </p>
         <a
+          href="/"
+          className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-secondary text-sm"
+        >
+          Back Home
+        </a>
+        <a
           href="/admin"
           className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-secondary text-sm"
         >

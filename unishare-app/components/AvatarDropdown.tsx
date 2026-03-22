@@ -15,10 +15,12 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import Link from "next/link";
 import CurrentUserAvatar from "./CurrentUserAvatar";
+import useProfile from "@/hooks/useProfile";
 
 export default function AvatarDropdown() {
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
+  const profile = useProfile();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -53,16 +55,25 @@ export default function AvatarDropdown() {
       ></DropdownMenuTrigger>
       <DropdownMenuContent className="w-32 mr-2 mt-1">
         <DropdownMenuGroup>
-          {user ? (
-            <DropdownMenuItem>
-              <Link href="/profile">Profile</Link>
-              <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
-            </DropdownMenuItem>
+          {profile ? (
+            <>
+              <DropdownMenuItem disabled>{profile.username}</DropdownMenuItem>
+              {profile.is_admin && (
+                <DropdownMenuItem>
+                  <Link href="/admin">Admin</Link>
+                  <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem>
+                <Link href="/profile">Profile</Link>
+                <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </>
           ) : (
             <></>
           )}
           <DropdownMenuItem>
-            Docs
+            <Link href={"/docs"}>Docs</Link>
             <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
@@ -83,7 +94,7 @@ export default function AvatarDropdown() {
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem>
-              <Link className="w-full" href="/auth/login">
+              <Link className="w-full" href="/login">
                 Log in
               </Link>
               <DropdownMenuShortcut>⌘L</DropdownMenuShortcut>

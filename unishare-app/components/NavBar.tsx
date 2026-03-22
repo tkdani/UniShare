@@ -26,6 +26,12 @@ export default function NavBar() {
         <NavigationMenuItem>
           <NavigationMenuLink
             className={navigationMenuTriggerStyle()}
+            render={<Link href="/statistics">Statistics</Link>}
+          />
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
             render={<Link href="/saved">Saved</Link>}
           />
         </NavigationMenuItem>

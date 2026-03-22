@@ -8,7 +8,17 @@ import { Input } from "./ui/Input";
 import { Card, CardContent, CardHeader } from "./ui/Card";
 import { Button } from "./ui/Button";
 
-export default function AccountForm({ user }: { user: User | null }) {
+interface Profile {
+  id: string;
+  email: string;
+  full_name?: string;
+  username: string;
+  avatar_url?: string;
+  is_admin?: boolean;
+  is_banned?: boolean;
+}
+
+export default function AccountForm({ user }: { user: Profile }) {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);

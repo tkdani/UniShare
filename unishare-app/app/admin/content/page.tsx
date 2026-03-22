@@ -15,10 +15,10 @@ export default async function AdminContent() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-muted-foreground border-b">
-              <th className="text-left p-4">Fájl</th>
-              <th className="text-left p-4">Egyetem / Kurzus</th>
-              <th className="text-left p-4">Feltöltve</th>
-              <th className="text-right p-4">Műveletek</th>
+              <th className="text-left p-4">File</th>
+              <th className="text-left p-4">University / Course</th>
+              <th className="text-left p-4">Uploaded</th>
+              <th className="text-right p-4">Operation</th>
             </tr>
           </thead>
           <tbody>
