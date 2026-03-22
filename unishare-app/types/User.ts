@@ -1,6 +1,7 @@
 type User = {
   id: string;
   updated_at: string;
+  created_at: string;
   username: string;
   full_name?: string;
   avatar_url?: string;

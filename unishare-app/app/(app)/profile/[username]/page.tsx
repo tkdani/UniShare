@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/NavBarClient";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { FileText, Heart, MessageCircle, Bookmark, Upload } from "lucide-react";

@@ -112,13 +112,10 @@ export default function DocsPage() {
         <DocCard icon={<Search className="h-4 w-4" />} title="Browsing Notes">
           <p>
             On the Notes page, files are listed in a tree structure on the left,
-            organized as a breadcrumb hierarchy:
-          </p>
-          <p className="mt-2 font-medium text-foreground text-xs">
-            University → Course → Lecture/Exam → File
+            organized as University - Course - Lesson number and file.
           </p>
           <p className="mt-2">
-            Click any file in the tree to open it in the main viewer.
+            Click any file from the list to open it in the main viewer.
           </p>
         </DocCard>
 

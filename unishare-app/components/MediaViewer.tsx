@@ -13,6 +13,7 @@ import {
   Check,
   Sparkles,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -154,6 +155,14 @@ export function MediaViewer({
     const newSaved = !saved;
     setSaved(newSaved);
     onSaveChange?.(newSaved);
+  };
+  const handleDownload = async () => {
+    const a = document.createElement("a");
+    a.href = `/api/download?url=${encodeURIComponent(src)}&fileName=${encodeURIComponent(fileName)}`;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleCopy = async () => {
@@ -327,6 +336,18 @@ export function MediaViewer({
               <p className="text-xs text-muted-foreground">{lineCount} lines</p>
             )}
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+            asChild
+            onClick={handleDownload}
+          >
+            <a href={src} download={fileName}>
+              <Download className="size-4 mr-1.5" />
+              Download
+            </a>
+          </Button>
           {type === "code" && (
             <Button
               variant="ghost"
@@ -503,18 +524,23 @@ export function MediaViewer({
             <MessageCircle className="size-4 inline mr-1.5" />
             Comments ({comments.length})
           </button>
-          <button
-            onClick={() => handleTabChange("ai")}
-            className={cn(
-              "flex-1 py-2.5 text-sm font-medium transition-colors",
-              activeTab === "ai"
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <Sparkles className="size-4 inline mr-1.5" />
-            AI Summary
-          </button>
+          {type == "code" ? (
+            <button
+              disabled={type != "code"}
+              onClick={() => handleTabChange("ai")}
+              className={cn(
+                "flex-1 py-2.5 text-sm font-medium transition-colors",
+                activeTab === "ai"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Sparkles className="size-4 inline mr-1.5" />
+              AI Summary
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
 
         <div className="flex-1 overflow-hidden flex flex-col">

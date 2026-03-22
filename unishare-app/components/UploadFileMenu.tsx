@@ -189,7 +189,7 @@ export default function UploadFileMenu() {
       ) : (
         <Button>
           <Link
-            href="/auth/login"
+            href="/login"
             className="flex justify-center items-center gap-2"
           >
             Create a note

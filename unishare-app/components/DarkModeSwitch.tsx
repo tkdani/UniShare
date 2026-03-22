@@ -1,15 +1,26 @@
+"use client";
+
 import { useTheme } from "next-themes";
 import { Switch } from "./ui/Switch";
 import { Label } from "./ui/Label";
 import { Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function DarkModeSwitch() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex items-center space-x-2">
       <Switch
         id="dark-mode"
+        checked={theme === "dark"}
         defaultChecked={true}
         onCheckedChange={() => {
           theme === "dark" ? setTheme("light") : setTheme("dark");

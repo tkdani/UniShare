@@ -1,4 +1,4 @@
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/NavBarClient";
 import { StatsCards } from "@/components/StatsCard";
 import { createClient } from "@/lib/supabase/server";
 import { RecentFiles } from "@/components/RecentFiles";

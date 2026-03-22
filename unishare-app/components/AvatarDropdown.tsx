@@ -11,37 +11,22 @@ import {
 } from "@/components/ui/DropdownMenu";
 
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import Link from "next/link";
 import CurrentUserAvatar from "./CurrentUserAvatar";
-import useProfile from "@/hooks/useProfile";
+import { useRouter } from "next/navigation";
 
-export default function AvatarDropdown() {
-  const [user, setUser] = useState<any>(null);
+interface AvatarDropdownProps {
+  profile: User | null;
+}
+
+export default function AvatarDropdown({ profile }: AvatarDropdownProps) {
+  const router = useRouter();
   const supabase = createClient();
-  const profile = useProfile();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setUser(user);
-    };
-    fetchUser();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   const logout = async () => {
-    const supabase = createClient();
     await supabase.auth.signOut();
+    router.refresh();
   };
   return (
     <DropdownMenu>
@@ -49,7 +34,7 @@ export default function AvatarDropdown() {
         render={
           <Button variant="ghost" size="icon" className="rounded-full">
             {" "}
-            <CurrentUserAvatar user={user} />
+            <CurrentUserAvatar profile={profile} />
           </Button>
         }
       ></DropdownMenuTrigger>
@@ -76,16 +61,12 @@ export default function AvatarDropdown() {
             <Link href={"/docs"}>Docs</Link>
             <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {user ? (
+          {profile ? (
             <DropdownMenuItem
-              className="w-full"
+              className="w-full cursor-pointer"
               onClick={logout}
               variant={"destructive"}
             >
