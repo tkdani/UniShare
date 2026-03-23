@@ -1,8 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
-import { Heart, MessageCircle, Bookmark, Upload } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Upload, Car } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
+import { Separator } from "./ui/Separator";
 
-export async function ProfileStats({ userId }: { userId: string }) {
+export async function ProfileStats({
+  userId,
+  followerCount,
+  followingCount,
+  followingList,
+}: {
+  userId: string;
+  followerCount: number;
+  followingCount: number;
+  followingList: { id: string; username: string; avatar_url: string | null }[];
+}) {
   const supabase = await createClient();
 
   const [
@@ -57,26 +70,69 @@ export async function ProfileStats({ userId }: { userId: string }) {
   ];
 
   return (
-    <Card className="w-max">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          Activity
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {stats.map(({ label, value, icon: Icon, color }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center rounded-lg bg-muted/50 p-3"
-            >
-              <Icon className={`mb-1 h-5 w-5 ${color}`} />
-              <span className="text-2xl font-bold">{value}</span>
-              <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="flex flex-col gap-5 items-center">
+      <Card className="w-max">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {/* Activity stats */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {stats.map(({ label, value, icon: Icon, color }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center rounded-lg bg-muted/50 p-3"
+              >
+                <Icon className={`mb-1 h-5 w-5 ${color}`} />
+                <span className="text-2xl font-bold">{value}</span>
+                <span className="text-xs text-muted-foreground">{label}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Following
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 text-center">
+          <div>
+            {/* Followers / Following */}
+            <div className="flex justify-center gap-6">
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold">{followerCount}</span>
+                <span className="text-xs text-muted-foreground">Followers</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold">{followingCount}</span>
+                <span className="text-xs text-muted-foreground">Following</span>
+              </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+          <Separator />
+          <div>
+            {followingList.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {followingList.map((user) => (
+                  <Link
+                    key={user.id}
+                    href={`/profile/${user.username}`}
+                    className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+                  >
+                    <span className="text-sm text-foreground">
+                      @{user.username}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

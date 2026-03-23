@@ -3,15 +3,23 @@ import { notFound } from "next/navigation";
 import NavBar from "@/components/NavBarClient";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { FileText, Heart, MessageCircle, Bookmark, Upload } from "lucide-react";
+import {
+  FileText,
+  Heart,
+  MessageCircle,
+  Bookmark,
+  Upload,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
+import { FollowButton } from "@/components/FollowButton";
 
 async function getProfile(username: string) {
   const supabase = await createClient();
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, full_name, avatar_url")
+    .select("id, username, full_name, avatar_url, follower_count")
     .eq("username", username)
     .single();
 
@@ -64,32 +72,65 @@ async function getProfile(username: string) {
 export default async function ProfilePage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const profile = await getProfile(username);
+  const supabase = await createClient();
+
+  const [
+    profile,
+    {
+      data: { user: currentUser },
+    },
+  ] = await Promise.all([getProfile(username), supabase.auth.getUser()]);
 
   if (!profile) notFound();
 
+  let isFollowing = false;
+  if (currentUser && currentUser.id !== profile.id) {
+    const { data } = await supabase
+      .from("follows")
+      .select("id")
+      .eq("follower_id", currentUser.id)
+      .eq("following_id", profile.id)
+      .maybeSingle();
+    isFollowing = !!data;
+  }
+
   return (
     <main className="min-h-screen bg-background p-4">
-      <NavBar />
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profile.signedAvatarUrl || undefined} />
-                <AvatarFallback className="text-2xl">
-                  {profile.username?.[0]?.toUpperCase() || "?"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl font-bold text-foreground">
-                  {profile.full_name || profile.username}
-                </h1>
-                <p className="text-muted-foreground">@{profile.username}</p>
+            <div className="flex justify-between">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profile.signedAvatarUrl || undefined} />
+                  <AvatarFallback className="text-2xl">
+                    {profile.username?.[0]?.toUpperCase() || "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {profile.full_name || profile.username}
+                    </h1>
+                    <p className="text-muted-foreground">@{profile.username}</p>
+                    <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span className="font-medium text-foreground">
+                        {profile.follower_count ?? 0}
+                      </span>
+                      followers
+                    </div>
+                  </div>
+                </div>
               </div>
+              <FollowButton
+                targetUserId={profile.id}
+                currentUserId={currentUser?.id ?? null}
+                initialFollowing={isFollowing}
+              />
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

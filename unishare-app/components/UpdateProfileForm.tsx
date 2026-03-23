@@ -7,6 +7,7 @@ import { Label } from "./ui/Label";
 import { Input } from "./ui/Input";
 import { Card, CardContent, CardHeader } from "./ui/Card";
 import { Button } from "./ui/Button";
+import useProfile from "@/hooks/useProfile";
 
 interface Profile {
   id: string;
@@ -24,6 +25,7 @@ export default function AccountForm({ user }: { user: Profile }) {
   const [fullname, setFullname] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
+  const profile = useProfile();
 
   const getProfile = useCallback(async () => {
     try {

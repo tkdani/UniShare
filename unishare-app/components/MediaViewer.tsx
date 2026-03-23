@@ -28,6 +28,7 @@ import {
   ContextMenuTrigger,
 } from "./ui/ContextMenu";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 const languageColors: Record<string, string> = {
   py: "text-yellow-400",
@@ -487,7 +488,7 @@ export function MediaViewer({
         {/* Actions */}
         <div className="flex items-center gap-2 p-4 border-b">
           <Button
-            disabled={profile?.is_banned}
+            disabled={profile?.is_banned || isBlocked}
             variant={liked ? "default" : "outline"}
             size="sm"
             onClick={handleLike}
@@ -641,7 +642,13 @@ function CommentItem({
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="font-medium text-sm text-card-foreground">
-                {comment.author}
+                <Link
+                  href={`/profile/${comment.author}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+                >
+                  {comment.author}
+                </Link>
               </span>
               <span className="text-xs text-muted-foreground">
                 {formatTimeAgo(comment.createdAt)}

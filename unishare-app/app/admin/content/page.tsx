@@ -10,7 +10,7 @@ export default async function AdminContent() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Feltöltött tartalom</h1>
+      <h1 className="text-2xl font-bold">Uploaded Files</h1>
       <div className="rounded-xl border bg-card">
         <table className="w-full text-sm">
           <thead>

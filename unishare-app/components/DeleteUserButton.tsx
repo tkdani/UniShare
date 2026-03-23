@@ -34,20 +34,20 @@ export function DeleteUserButton({
     return (
       <div className="flex items-center justify-end gap-2">
         <span className="text-xs text-muted-foreground">
-          Biztosan törlöd: <strong>{username}</strong>?
+          Delete: <strong>{username}</strong>?
         </span>
         <button
           onClick={handleDelete}
           disabled={loading}
           className="text-xs bg-destructive text-destructive-foreground px-2 py-1 rounded hover:bg-destructive/90 disabled:opacity-50"
         >
-          {loading ? "..." : "Igen"}
+          {loading ? "..." : "Yes"}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           className="text-xs bg-secondary text-muted-foreground px-2 py-1 rounded hover:bg-secondary/80"
         >
-          Mégse
+          No
         </button>
       </div>
     );

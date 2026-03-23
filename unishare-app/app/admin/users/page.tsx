@@ -12,7 +12,7 @@ export default async function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Felhasználók</h1>
+      <h1 className="text-2xl font-bold">Users</h1>
       <div className="rounded-xl border bg-card">
         <table className="w-full text-sm">
           <thead>
