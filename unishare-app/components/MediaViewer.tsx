@@ -29,6 +29,7 @@ import {
 } from "./ui/ContextMenu";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const languageColors: Record<string, string> = {
   py: "text-yellow-400",
@@ -109,6 +110,8 @@ export function MediaViewer({
   const [summaryGenerated, setSummaryGenerated] = React.useState(false);
   const [summaryError, setSummaryError] = React.useState<string | null>(null);
 
+  const router = useRouter();
+
   React.useEffect(() => {
     if (!profile) return;
     const fetchBlockedUsers = async () => {
@@ -145,6 +148,10 @@ export function MediaViewer({
   }, [initialSaved]);
 
   const handleLike = () => {
+    if (!profile) {
+      router.push("/login");
+      return;
+    }
     const newLiked = !liked;
     const newLikes = newLiked ? likes + 1 : likes - 1;
     setLiked(newLiked);
@@ -153,6 +160,11 @@ export function MediaViewer({
   };
 
   const handleSave = () => {
+    if (!profile) {
+      router.push("/login");
+      return;
+    }
+
     const newSaved = !saved;
     setSaved(newSaved);
     onSaveChange?.(newSaved);
@@ -451,7 +463,7 @@ export function MediaViewer({
           <div className="border-t px-4 py-3">
             <div className="flex items-center gap-2">
               <Input
-                disabled={profile?.is_banned}
+                disabled={profile?.is_banned || !profile}
                 placeholder="Add a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
@@ -585,7 +597,7 @@ export function MediaViewer({
               ) : (
                 <div className="flex items-center gap-2">
                   <Input
-                    disabled={profile?.is_banned}
+                    disabled={profile?.is_banned || !profile}
                     placeholder="Add a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}

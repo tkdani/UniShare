@@ -81,7 +81,11 @@ export function FeedCard(props: FeedCardProps) {
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!profile || profile.is_banned) return;
+    if (!profile) {
+      router.push("/login");
+      return;
+    }
+    if (profile.is_banned) return;
 
     const newLiked = !liked;
     const newLikes = newLiked ? likes + 1 : likes - 1;
@@ -108,7 +112,11 @@ export function FeedCard(props: FeedCardProps) {
 
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!profile) return;
+    if (!profile) {
+      router.push("/login");
+      return;
+    }
+    if (!profile.is_banned) return;
 
     const newSaved = !saved;
     setSaved(newSaved);
