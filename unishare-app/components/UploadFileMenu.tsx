@@ -19,9 +19,9 @@ import { Label } from "./ui/Label";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./Dropzone";
-import { useSupabaseUpload } from "@/hooks/useSupabaseUpload";
+import { useSupabaseUpload } from "@/lib/hooks/useSupabaseUpload";
 import { convertShortname } from "@/lib/utils";
-import useProfile from "@/hooks/useProfile";
+import { getUser } from "./UserProvider";
 
 export default function UploadFileMenu() {
   const [user, setUser] = useState<any>(null);
@@ -31,7 +31,7 @@ export default function UploadFileMenu() {
   const [course, setCourse] = useState<string | null>(null);
   const [lesson, setLesson] = useState<number | null>(null);
   const [isClassType, setIsClassType] = useState<boolean>(true);
-  const profile = useProfile();
+  const profile = getUser();
 
   const isFormValid = university && course;
 
@@ -141,21 +141,17 @@ export default function UploadFileMenu() {
               </Field>
               <div className="flex flex-row justify-between">
                 <Field orientation="horizontal" className="w-2/3">
-                  <RadioGroup defaultValue="class" className="w-fit">
+                  <RadioGroup
+                    defaultValue="class"
+                    className="w-fit"
+                    onValueChange={() => setIsClassType(!isClassType)}
+                  >
                     <div className="flex items-center gap-3">
-                      <RadioGroupItem
-                        onChange={() => setIsClassType(!isClassType)}
-                        value="class"
-                        id="r1"
-                      />
+                      <RadioGroupItem value="class" id="r1" />
                       <Label htmlFor="r1">Class</Label>
                     </div>
                     <div className="flex items-center gap-3">
-                      <RadioGroupItem
-                        onChange={() => setIsClassType(!isClassType)}
-                        value="exam"
-                        id="r2"
-                      />
+                      <RadioGroupItem value="exam" id="r2" />
                       <Label htmlFor="r2">Exam</Label>
                     </div>
                   </RadioGroup>

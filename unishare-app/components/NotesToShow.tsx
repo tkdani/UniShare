@@ -11,7 +11,7 @@ import { convertShortname } from "@/lib/utils";
 import { Comment, MediaViewer } from "./MediaViewer";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import useProfile from "@/hooks/useProfile";
+import { getUser } from "./UserProvider";
 
 function getFileType(filename: string): "image" | "pdf" | "code" {
   if (
@@ -29,7 +29,7 @@ export default function NotesToShow({ file }: any) {
   const [alreadyLiked, setAlreadyLiked] = useState<boolean>(false);
   const [alreadySaved, setAlreadySaved] = useState<boolean>(false);
   const [initialComments, setInitialComments] = useState<Comment[]>([]);
-  const profile = useProfile();
+  const profile = getUser();
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function NotesToShow({ file }: any) {
 
       const { data: comments } = await supabase
         .from("comments")
-        .select("*, profiles(username, avatar_url)") // join egy lekéréssel
+        .select("*, profiles(username, avatar_url)")
         .eq("file_id", file.id);
 
       if (!comments) return;

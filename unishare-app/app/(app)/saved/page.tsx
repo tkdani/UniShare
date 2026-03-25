@@ -1,5 +1,4 @@
 "use client";
-import useProfile from "@/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { ArrowDownUpIcon } from "lucide-react";
@@ -16,21 +15,22 @@ import {
 import { Button } from "@/components/ui/Button";
 import UploadFileMenu from "@/components/UploadFileMenu";
 import NotesToShow from "@/components/NotesToShow";
+import { getUser } from "@/components/UserProvider";
 
 export default function SavedPage() {
-  const supabase = createClient();
-  const profile = useProfile();
   const [savedFiles, setSavedFiles] = useState<UserFile[] | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
+  const supabase = createClient();
+  const user = getUser();
 
   useEffect(() => {
-    if (profile) {
+    if (user) {
       const fetchFiles = async () => {
         const { data, error } = await supabase
           .from("file_saves")
           .select("*, user_files (*)")
-          .eq("user_id", profile.id);
+          .eq("user_id", user.id);
         if (error) console.log(error);
         const files = data?.map((item) => item.user_files) ?? null;
         setSavedFiles(files);
@@ -38,7 +38,7 @@ export default function SavedPage() {
 
       fetchFiles();
     }
-  }, [profile]);
+  }, [user]);
 
   useEffect(() => {
     const fetchFile = async (url: string) => {

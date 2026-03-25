@@ -1,12 +1,20 @@
-import HomePageComp from "@/components/HomePage";
+import HomePageFeed from "@/components/HomePageFeed";
+import { useUser } from "@/lib/hooks/useUser";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await useUser();
   return (
     <main>
       <div className="container">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           UniShare
         </h1>
+        {user.username ?? (
+          <p className="text-xl tracking-tight">
+            Hi {user.username}, good to see you again!
+          </p>
+        )}
+
         <p className="mt-2 text-muted-foreground">
           UniShare is a platform built for university students to share and
           discover learning materials. Upload your notes, assignments, and study
@@ -15,7 +23,7 @@ export default function HomePage() {
           and join the conversation with comments.
         </p>
       </div>
-      <HomePageComp />
+      <HomePageFeed />
     </main>
   );
 }

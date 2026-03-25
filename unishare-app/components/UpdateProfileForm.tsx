@@ -1,62 +1,26 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { type User } from "@supabase/supabase-js";
 import AvatarUpload from "./AvatarUpload";
 import { Label } from "./ui/Label";
 import { Input } from "./ui/Input";
 import { Card, CardContent, CardHeader } from "./ui/Card";
 import { Button } from "./ui/Button";
-import useProfile from "@/hooks/useProfile";
 
-interface Profile {
-  id: string;
-  email: string;
-  full_name?: string;
-  username: string;
-  avatar_url?: string;
-  is_admin?: boolean;
-  is_banned?: boolean;
-}
-
-export default function AccountForm({ user }: { user: Profile }) {
+export default function UpdateProfileForm({ user }: { user: User }) {
   const supabase = createClient();
-  const [loading, setLoading] = useState(true);
-  const [fullname, setFullname] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null);
-  const profile = useProfile();
-
-  const getProfile = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      const { data, error, status } = await supabase
-        .from("profiles")
-        .select(`full_name, username, avatar_url`)
-        .eq("id", user?.id)
-        .single();
-
-      if (error && status !== 406) {
-        console.log(error);
-        throw error;
-      }
-
-      if (data) {
-        setFullname(data.full_name);
-        setUsername(data.username);
-        setAvatarUrl(data.avatar_url);
-      }
-    } catch (error) {
-      alert("Error loading user data!");
-    } finally {
-      setLoading(false);
-    }
-  }, [user, supabase]);
-
-  useEffect(() => {
-    getProfile();
-  }, [user, getProfile]);
+  const [fullname, setFullname] = useState<string | null>(
+    user.full_name ?? null,
+  );
+  const [username, setUsername] = useState<string | null>(
+    user.username ?? null,
+  );
+  const [avatar_url, setAvatarUrl] = useState<string | null>(
+    user.avatar_url ?? null,
+  );
+  const [loading, setLoading] = useState(false); // nem kell true, nincs initial fetch
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   async function updateProfile({
     username,
@@ -66,9 +30,29 @@ export default function AccountForm({ user }: { user: Profile }) {
     fullname: string | null;
     avatar_url: string | null;
   }) {
+    setUsernameError(null);
+    setSuccess(false);
+
+    if (!username || username.length < 3) {
+      setUsernameError("Username must be at least 3 characters");
+      return;
+    }
+
+    if (username !== user.username) {
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (existing) {
+        setUsernameError("This username is already taken");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
-
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
         full_name: fullname,
@@ -77,13 +61,41 @@ export default function AccountForm({ user }: { user: Profile }) {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      alert("Profile updated!");
+      setSuccess(true);
     } catch (error) {
-      alert("Error updating the data!");
+      setUsernameError("Error updating profile");
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!username || username === user.username) {
+      setUsernameError(null);
+      return;
+    }
+    if (username.length < 3) {
+      setUsernameError("Username must be at least 3 characters");
+      return;
+    }
+
+    const checkUsername = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (data) {
+        setUsernameError("This username is already taken");
+      } else {
+        setUsernameError(null);
+      }
+    };
+
+    const timer = setTimeout(checkUsername, 500); // 500ms debounce
+    return () => clearTimeout(timer);
+  }, [username]);
 
   return (
     <div className="form-widget flex flex-col gap-5 w-max">
@@ -121,8 +133,18 @@ export default function AccountForm({ user }: { user: Profile }) {
                 type="text"
                 value={username || ""}
                 onChange={(e) => setUsername(e.target.value)}
+                className={usernameError ? "border-red-500" : ""}
               />
+              {usernameError && (
+                <p className="mt-1 text-xs text-red-500">{usernameError}</p>
+              )}
             </div>
+
+            {success && (
+              <p className="text-xs text-green-500">
+                Profile updated successfully!
+              </p>
+            )}
 
             <div className="flex justify-between">
               <div>

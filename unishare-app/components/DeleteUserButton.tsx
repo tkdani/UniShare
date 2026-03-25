@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { deleteUser } from "@/hooks/deleteUser";
+import { useDeleteUser } from "@/lib/hooks/useDeleteUser";
 
 interface DeleteUserButtonProps {
   userId: string;
@@ -22,7 +22,7 @@ export function DeleteUserButton({
 
   const handleDelete = async () => {
     setLoading(true);
-    const result = await deleteUser(userId);
+    const result = await useDeleteUser(userId);
     if (result.error) {
       alert("Hiba: " + result.error);
     }
@@ -59,7 +59,7 @@ export function DeleteUserButton({
       className="inline-flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors"
     >
       <Trash2 className="h-3.5 w-3.5" />
-      Törlés
+      Delete
     </button>
   );
 }

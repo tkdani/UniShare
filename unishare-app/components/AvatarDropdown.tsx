@@ -15,14 +15,12 @@ import { Button } from "./ui/Button";
 import Link from "next/link";
 import CurrentUserAvatar from "./CurrentUserAvatar";
 import { useRouter } from "next/navigation";
+import { getUser } from "./UserProvider";
 
-interface AvatarDropdownProps {
-  profile: User | null;
-}
-
-export default function AvatarDropdown({ profile }: AvatarDropdownProps) {
+export default function AvatarDropdown() {
   const router = useRouter();
   const supabase = createClient();
+  const user = getUser();
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -34,16 +32,16 @@ export default function AvatarDropdown({ profile }: AvatarDropdownProps) {
         render={
           <Button variant="ghost" size="icon" className="rounded-full">
             {" "}
-            <CurrentUserAvatar profile={profile} />
+            <CurrentUserAvatar user={user} />
           </Button>
         }
       ></DropdownMenuTrigger>
       <DropdownMenuContent className="w-32 mr-2 mt-1">
         <DropdownMenuGroup>
-          {profile ? (
+          {user ? (
             <>
-              <DropdownMenuItem disabled>{profile.username}</DropdownMenuItem>
-              {profile.is_admin && (
+              <DropdownMenuItem disabled>{user.username}</DropdownMenuItem>
+              {user.is_admin && (
                 <DropdownMenuItem>
                   <Link href="/admin">Admin</Link>
                   <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
@@ -64,7 +62,7 @@ export default function AvatarDropdown({ profile }: AvatarDropdownProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {profile ? (
+          {user ? (
             <DropdownMenuItem
               className="w-full cursor-pointer"
               onClick={logout}

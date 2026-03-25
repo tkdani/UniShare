@@ -3,7 +3,6 @@
 import { ArrowDownUpIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import useProfile from "@/hooks/useProfile";
 import { useSearchParams } from "next/navigation";
 import { Separator } from "@/components/ui/Separator";
 import DeepSearch from "@/components/DeepSearch";
@@ -37,7 +36,6 @@ export default function NotesPage() {
   const [sortBy, setSortBy] = useState<
     "university" | "course" | "file_name" | null
   >(null);
-  const profile = useProfile();
 
   const searchParams = useSearchParams();
 

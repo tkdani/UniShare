@@ -4,29 +4,29 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 interface CurrentUserAvatarProps {
-  profile: User | null;
+  user: User | null;
 }
 
-export default function CurrentUserAvatar({ profile }: CurrentUserAvatarProps) {
+export default function CurrentUserAvatar({ user }: CurrentUserAvatarProps) {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const name = profile?.full_name ?? profile?.username ?? "?";
+  const name = user?.full_name ?? user?.username ?? "?";
   const supabase = createClient();
 
   useEffect(() => {
     setMounted(true);
     const fetchImage = async () => {
-      if (!profile?.avatar_url) {
+      if (!user?.avatar_url) {
         setProfileImage(null);
         return;
       }
       const { data } = await supabase.storage
         .from("avatars")
-        .createSignedUrl(profile.avatar_url, 3600);
+        .createSignedUrl(user.avatar_url, 3600);
       setProfileImage(data?.signedUrl ?? null);
     };
     fetchImage();
-  }, [profile]);
+  }, [user]);
 
   if (!mounted) {
     return (

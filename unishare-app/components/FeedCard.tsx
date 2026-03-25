@@ -7,8 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Heart, MessageCircle, Bookmark, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import useProfile from "@/hooks/useProfile";
-import { cn } from "@/lib/utils";
+import { cn, formatTimeAgo, getTypeColor } from "@/lib/utils";
+import { getUser } from "./UserProvider";
 
 interface FeedCardProps {
   id: string;
@@ -25,30 +25,10 @@ interface FeedCardProps {
   commentCount: number;
 }
 
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (diffInSeconds < 60) return "just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  return date.toLocaleDateString("en-US");
-}
-
-function getTypeColor(type: string): string {
-  const colors: Record<string, string> = {
-    class: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-    exam: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  };
-  return colors[type.toLowerCase()] ?? "bg-muted text-muted-foreground";
-}
-
 export function FeedCard(props: FeedCardProps) {
   const router = useRouter();
   const supabase = createClient();
-  const profile = useProfile();
+  const profile = getUser();
 
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(props.like_count);

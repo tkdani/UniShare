@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
-import useProfile from "@/hooks/useProfile";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -30,6 +29,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getUser } from "./UserProvider";
 
 const languageColors: Record<string, string> = {
   py: "text-yellow-400",
@@ -97,7 +97,7 @@ export function MediaViewer({
   const [newComment, setNewComment] = React.useState("");
   const [copied, setCopied] = React.useState(false);
   const [codeContent, setCodeContent] = React.useState("");
-  const profile = useProfile();
+  const profile = getUser();
   const supabase = createClient();
   const [blockedUserIds, setBlockedUserIds] = React.useState<Set<string>>(
     new Set(),

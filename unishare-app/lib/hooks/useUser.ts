@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "../supabase/server";
 
-export async function getProfile() {
+export async function useUser() {
   const supabase = await createClient();
   const {
     data: { user },

@@ -1,9 +1,9 @@
-import { getProfile } from "@/lib/getProfile";
+import { useUser } from "@/lib/hooks/useUser";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
-  const profile = await getProfile();
+  const profile = await useUser();
   if (!profile?.is_admin || !profile) redirect("/");
   const supabase = await createClient();
 

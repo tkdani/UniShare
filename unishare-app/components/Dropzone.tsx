@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
-import { type UseSupabaseUploadReturn } from "@/hooks/useSupabaseUpload";
+import { type UseSupabaseUploadReturn } from "@/lib/hooks/useSupabaseUpload";
 import { Button } from "@/components/ui/Button";
 
 export const formatBytes = (
