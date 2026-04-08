@@ -37,7 +37,7 @@ export default function DeepSearch({ onSearch }: any) {
           onChange={(e) => {
             setCourse(e.target.value == "" ? null : e.target.value);
           }}
-          placeholder="Webprogramozás"
+          placeholder="Python"
           id="course-search"
         />
       </Field>
@@ -60,7 +60,7 @@ export default function DeepSearch({ onSearch }: any) {
           onChange={(e) => {
             setName(e.target.value == "" ? null : e.target.value);
           }}
-          placeholder="ElsoOra"
+          placeholder="first_class"
           id="name-search"
         />
       </Field>

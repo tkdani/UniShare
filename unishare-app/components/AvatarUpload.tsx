@@ -58,11 +58,13 @@ export default function AvatarUpload({
         .upload(filePath, file);
 
       if (uploadError) {
+        console.log("Upload error:", uploadError);
         throw uploadError;
       }
 
       onUpload(filePath);
     } catch (error) {
+      console.log(error);
       alert("Error uploading avatar!");
     } finally {
       setUploading(false);

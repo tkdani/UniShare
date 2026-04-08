@@ -2,6 +2,8 @@ import { StatsCards } from "@/components/StatsCard";
 import { createClient } from "@/lib/supabase/server";
 import { RecentFiles } from "@/components/RecentFiles";
 import { TopUsers } from "@/components/TopUsers";
+import { FeedCard } from "@/components/FeedCard";
+import { useFeedFiles } from "@/lib/hooks/useFeedFiles";
 
 async function getStats() {
   const supabase = await createClient();
@@ -156,42 +158,6 @@ async function getStats() {
   };
 }
 
-async function getRecentFiles() {
-  const supabase = await createClient();
-
-  const { data: recentFiles } = await supabase
-    .from("user_files")
-    .select(
-      `
-      id,
-      file_name,
-      university,
-      course,
-      type,
-      lesson,
-      like_count,
-      created_at,
-      url,
-      owner:profiles!owner_id(username, avatar_url)
-    `,
-    )
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  return (recentFiles || []) as unknown as {
-    id: string;
-    file_name: string;
-    university: string;
-    course: string;
-    type: string;
-    lesson: string | null;
-    like_count: number;
-    created_at: string;
-    url: string;
-    owner: { username: string; avatar_url: string | null };
-  }[];
-}
-
 async function getTopUsers() {
   const supabase = await createClient();
 
@@ -203,7 +169,7 @@ async function getTopUsers() {
       owner:profiles!owner_id(username, avatar_url, full_name)
     `,
     )
-    .limit(500);
+    .limit(4);
 
   const uploaderCounts = new Map<
     string,
@@ -256,9 +222,10 @@ async function getTopUsers() {
 export default async function StatsPage() {
   const [stats, recentFiles, topUsers] = await Promise.all([
     getStats(),
-    getRecentFiles(),
+    useFeedFiles(6),
     getTopUsers(),
   ]);
+
   return (
     <div>
       <div className="text-3xl font-bold tracking-tight text-foreground pb-2">
@@ -266,11 +233,12 @@ export default async function StatsPage() {
       </div>
       <StatsCards stats={stats} />
       <div className="mt-8 grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <RecentFiles files={recentFiles} />
+        <div className="col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {recentFiles.map((file) => (
+            <FeedCard key={file.id} {...file} />
+          ))}
         </div>
-
-        <div className="lg:col-span-1">
+        <div className="col-span-1">
           <TopUsers users={topUsers} />
         </div>
       </div>

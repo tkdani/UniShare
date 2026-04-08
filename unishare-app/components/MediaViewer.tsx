@@ -14,16 +14,16 @@ import {
   Sparkles,
   RefreshCw,
   Download,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { cn } from "@/lib/utils";
+import { cn, formatTimeAgo } from "@/lib/utils";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuPortal,
   ContextMenuTrigger,
 } from "./ui/ContextMenu";
 import { createClient } from "@/lib/supabase/client";
@@ -61,6 +61,9 @@ export interface MediaViewerProps {
   src: string;
   type: "image" | "pdf" | "code";
   fileName: string;
+  upload_date: string;
+  owner: User | null;
+  avatarUrl: string | null;
   language?: string;
   initialLikes?: number;
   initialLiked?: boolean;
@@ -78,6 +81,9 @@ export function MediaViewer({
   src,
   type,
   fileName,
+  upload_date,
+  owner,
+  avatarUrl,
   language,
   initialLikes = 0,
   initialLiked = false,
@@ -285,9 +291,7 @@ export function MediaViewer({
                 fullContent += parsed.delta;
                 setAiSummary(fullContent);
               }
-            } catch {
-              // Skip invalid JSON
-            }
+            } catch {}
           }
         }
       }
@@ -329,9 +333,7 @@ export function MediaViewer({
 
   return (
     <div className={cn("flex flex-col lg:flex-row gap-4", className)}>
-      {/* Main Content - Large viewer */}
-      <div className="flex-1 min-w-0 flex flex-col rounded-xl border bg-card overflow-hidden">
-        {/* File Header */}
+      <div className="flex-1 min-w-0 flex flex-col rounded-xl border bg-card overflow-hidden max-h-[82vh]">
         <div className="flex items-center gap-3 px-4 py-3 border-b bg-secondary/30">
           <div
             className={cn(
@@ -348,6 +350,10 @@ export function MediaViewer({
             {type === "code" && (
               <p className="text-xs text-muted-foreground">{lineCount} lines</p>
             )}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="size-4 mr-1.5" />
+            {new Date(upload_date).toLocaleDateString("en-EN")}
           </div>
           <Button
             variant="ghost"
@@ -378,7 +384,6 @@ export function MediaViewer({
           )}
         </div>
 
-        {/* Content Area - Full size */}
         <div className="flex-1 bg-secondary/20">
           {type === "image" && (
             <div className="flex items-center justify-center p-4 min-h-[400px]">
@@ -403,7 +408,7 @@ export function MediaViewer({
           )}
 
           {type === "code" && (
-            <div className="overflow-auto min-h-[400px] max-h-[700px]">
+            <div className="overflow-auto max-h-[700px]">
               <table className="w-full text-sm font-mono">
                 <tbody>
                   {codeContent.split("\n").map((line, i) => (
@@ -427,9 +432,8 @@ export function MediaViewer({
           )}
         </div>
 
-        {/* Mobile Actions - Only visible on small screens */}
         <div className="lg:hidden border-t">
-          <div className="flex items-center gap-2 px-4 py-3">
+          <div className="flex items-center gap-2 px-4 py-3 ">
             <Button
               disabled={profile?.is_banned}
               variant="ghost"
@@ -459,7 +463,6 @@ export function MediaViewer({
             </Button>
           </div>
 
-          {/* Mobile Comments */}
           <div className="border-t px-4 py-3">
             <div className="flex items-center gap-2">
               <Input
@@ -495,9 +498,22 @@ export function MediaViewer({
         </div>
       </div>
 
-      {/* Sidebar - Desktop only */}
-      <div className="hidden lg:flex flex-col w-80 shrink-0 rounded-xl border bg-card overflow-hidden">
-        {/* Actions */}
+      <div className="hidden lg:flex flex-col w-80 shrink-0 rounded-xl border bg-card overflow-hidden self-start">
+        <div className="flex items-center gap-2 p-4 border-b">
+          <Avatar className="h-7 w-7">
+            <AvatarImage src={avatarUrl || undefined} />
+            <AvatarFallback className="text-xs">
+              {owner?.username?.[0]?.toUpperCase() || "?"}
+            </AvatarFallback>
+          </Avatar>
+          <Link
+            href={`/profile/${owner?.username}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+          >
+            {owner?.username || "Unknown"}
+          </Link>
+        </div>
         <div className="flex items-center gap-2 p-4 border-b">
           <Button
             disabled={profile?.is_banned || isBlocked}
@@ -539,13 +555,16 @@ export function MediaViewer({
           </button>
           {type == "code" ? (
             <button
-              disabled={type != "code"}
+              disabled={!profile}
               onClick={() => handleTabChange("ai")}
               className={cn(
+                profile ? "" : "hover:text-red-400",
                 "flex-1 py-2.5 text-sm font-medium transition-colors",
-                activeTab === "ai"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                !profile
+                  ? "text-muted-foreground/40 cursor-not-allowed"
+                  : activeTab === "ai"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Sparkles className="size-4 inline mr-1.5" />
@@ -556,7 +575,7 @@ export function MediaViewer({
           )}
         </div>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex flex-col">
           {activeTab === "comments" ? (
             <>
               {/* Comments List */}
@@ -688,21 +707,6 @@ function CommentItem({
     </ContextMenu>
   );
 }
-
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-
-  if (diffSec < 60) return "just now";
-  if (diffMin < 60) return `${diffMin}m`;
-  if (diffHour < 24) return `${diffHour}h`;
-  return `${diffDay}d`;
-}
-
 function AISummaryContent({
   summary,
   isLoading,

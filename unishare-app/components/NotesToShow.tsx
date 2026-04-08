@@ -31,10 +31,13 @@ export default function NotesToShow({ file }: any) {
   const [initialComments, setInitialComments] = useState<Comment[]>([]);
   const profile = getUser();
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const [owner, setOwner] = useState<User | null>(null);
+  const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const check = async () => {
+    const checkProfile = async () => {
       if (!profile) return;
+
       const { data: blockedData } = await supabase
         .from("blocked_users")
         .select("id")
@@ -56,6 +59,27 @@ export default function NotesToShow({ file }: any) {
         .eq("user_id", profile.id)
         .eq("file_id", file.id)
         .maybeSingle();
+
+      setAlreadyLiked(!!likedData);
+      setAlreadySaved(!!savedData);
+    };
+    const check = async () => {
+      const { data: owner } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", file.owner_id)
+        .single();
+      setOwner(owner);
+
+      if (owner?.avatar_url) {
+        const { data: signedData, error } = await supabase.storage
+          .from("avatars")
+          .createSignedUrl(owner.avatar_url, 3600);
+
+        if (signedData) {
+          setSignedAvatarUrl(signedData.signedUrl);
+        }
+      }
 
       const { data: comments } = await supabase
         .from("comments")
@@ -88,10 +112,9 @@ export default function NotesToShow({ file }: any) {
       setInitialComments(commentsArr);
 
       setInitialComments(commentsArr);
-      setAlreadyLiked(!!likedData);
-      setAlreadySaved(!!savedData);
     };
     check();
+    checkProfile();
   }, [file, profile]);
 
   const addComment = async (comment: string) => {
@@ -159,12 +182,14 @@ export default function NotesToShow({ file }: any) {
             <BreadcrumbItem>
               <BreadcrumbLink href="#">{file.course}</BreadcrumbLink>
             </BreadcrumbItem>
-            {file.lesson ? (
-              <BreadcrumbItem>
-                <BreadcrumbLink href="#">{file.lesson}</BreadcrumbLink>
-              </BreadcrumbItem>
-            ) : (
-              <BreadcrumbSeparator />
+            <BreadcrumbSeparator />
+            {file.lesson && (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#">{file.lesson}</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+              </>
             )}
             <BreadcrumbItem>
               <BreadcrumbLink href="#">{file.file_name}</BreadcrumbLink>
@@ -175,7 +200,10 @@ export default function NotesToShow({ file }: any) {
       <MediaViewer
         key={file.url}
         fileName={file.file_name}
+        upload_date={file.created_at}
         src={file.url}
+        owner={owner}
+        avatarUrl={signedAvatarUrl}
         type={getFileType(file.file_name)}
         initialLiked={alreadyLiked}
         initialLikes={file.like_count}

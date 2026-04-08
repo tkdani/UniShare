@@ -4,9 +4,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       {/* Sidebar */}
-      <aside className="w-60 bg-card border-r flex flex-col gap-1 p-4">
+      <aside className="w-60 bg-card border-r flex flex-col gap-1 p-4 self-start rounded">
         <p className="text-xs text-muted-foreground font-medium px-2 mb-2">
           ADMIN
         </p>

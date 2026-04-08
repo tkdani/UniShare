@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/Label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowLeft, Undo, Undo2 } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -37,8 +38,10 @@ export function LoginForm({
         email,
         password,
       });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
+      if (error) {
+        setError("Invalid email or password");
+        return;
+      }
       router.push("/");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -51,7 +54,16 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <Link
+              href="/"
+              className="hover:underline flex items-center gap-0.5"
+            >
+              Back
+              <Undo2 size={14} />
+            </Link>
+          </div>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -64,7 +76,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="example@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -85,6 +97,7 @@ export function LoginForm({
                   type="password"
                   required
                   value={password}
+                  placeholder="******"
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>

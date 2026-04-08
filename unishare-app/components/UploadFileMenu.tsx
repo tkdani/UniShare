@@ -188,7 +188,7 @@ export default function UploadFileMenu() {
             href="/login"
             className="flex justify-center items-center gap-2"
           >
-            Create a note
+            Create Notes
             <CirclePlus />
           </Link>
         </Button>

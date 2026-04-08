@@ -58,7 +58,7 @@ function Tag({ children }: { children: React.ReactNode }) {
 export default function DocsPage() {
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-5">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Documentation
         </h1>

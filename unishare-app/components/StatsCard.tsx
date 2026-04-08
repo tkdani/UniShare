@@ -9,6 +9,10 @@ import {
   Bookmark,
 } from "lucide-react";
 
+const moreThanOne = (num: number) => {
+  return num > 1;
+};
+
 interface StatsProps {
   stats: {
     topLikedFile: {
@@ -70,7 +74,10 @@ export function StatsCards({ stats }: StatsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totals.likes}</div>
-            <p className="text-xs text-muted-foreground">likes</p>
+            <p className="text-xs text-muted-foreground">
+              {" "}
+              {moreThanOne(stats.totals.likes) ? "likes" : "like"}
+            </p>
           </CardContent>
         </Card>
 
@@ -81,7 +88,9 @@ export function StatsCards({ stats }: StatsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totals.comments}</div>
-            <p className="text-xs text-muted-foreground">comment</p>
+            <p className="text-xs text-muted-foreground">
+              {moreThanOne(stats.totals.comments) ? "comments" : "comment"}
+            </p>
           </CardContent>
         </Card>
 
@@ -92,7 +101,12 @@ export function StatsCards({ stats }: StatsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totals.users}</div>
-            <p className="text-xs text-muted-foreground">registered user</p>
+            <p className="text-xs text-muted-foreground">
+              {" "}
+              {moreThanOne(stats.totals.users)
+                ? "registered users"
+                : "registered user"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -118,7 +132,10 @@ export function StatsCards({ stats }: StatsProps) {
               <div className="mt-2 flex items-center gap-2">
                 <Heart className="h-3 w-3 fill-red-500 text-red-500" />
                 <span className="text-sm font-medium">
-                  {stats.topLikedFile.like_count} like
+                  {stats.topLikedFile.like_count}
+                  {moreThanOne(stats.topLikedFile.like_count)
+                    ? " likes"
+                    : " like"}
                 </span>
               </div>
             </CardContent>
@@ -145,7 +162,10 @@ export function StatsCards({ stats }: StatsProps) {
               <div className="mt-2 flex items-center gap-2">
                 <MessageSquare className="h-3 w-3 text-blue-500" />
                 <span className="text-sm font-medium">
-                  {stats.mostCommentedFile.comments?.[0]?.count || 0} comments
+                  {stats.mostCommentedFile.comments?.[0]?.count || 0}
+                  {moreThanOne(stats.mostCommentedFile.comments?.[0]?.count)
+                    ? " comments"
+                    : " comment"}
                 </span>
               </div>
             </CardContent>
@@ -178,7 +198,10 @@ export function StatsCards({ stats }: StatsProps) {
                       {stats.topLikerUser.username}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      gave {stats.topLikerUser.likeCount} like
+                      gave {stats.topLikerUser.likeCount}{" "}
+                      {moreThanOne(stats.topLikerUser.likeCount)
+                        ? "likes"
+                        : "like"}
                     </p>
                   </div>
                 </>
@@ -215,7 +238,10 @@ export function StatsCards({ stats }: StatsProps) {
                       {stats.topSaverUser.username}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {stats.topSaverUser.saveCount} save(s)
+                      {stats.topSaverUser.saveCount}
+                      {moreThanOne(stats.topSaverUser.saveCount)
+                        ? " saves"
+                        : " save"}
                     </p>
                   </div>
                 </>

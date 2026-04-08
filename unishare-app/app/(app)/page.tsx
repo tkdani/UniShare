@@ -9,7 +9,7 @@ export default async function HomePage() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           UniShare
         </h1>
-        {user.username ?? (
+        {user && (
           <p className="text-xl tracking-tight">
             Hi {user.username}, good to see you again!
           </p>

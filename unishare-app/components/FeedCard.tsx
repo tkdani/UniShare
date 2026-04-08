@@ -96,7 +96,8 @@ export function FeedCard(props: FeedCardProps) {
       router.push("/login");
       return;
     }
-    if (!profile.is_banned) return;
+
+    if (profile.is_banned) return;
 
     const newSaved = !saved;
     setSaved(newSaved);

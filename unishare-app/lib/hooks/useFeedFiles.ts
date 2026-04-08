@@ -15,7 +15,7 @@ interface FeedFile {
   commentCount: number;
 }
 
-export async function useFeedFiles(): Promise<FeedFile[]> {
+export async function useFeedFiles(max: number): Promise<FeedFile[]> {
   const supabase = await createClient();
 
   const { data: files } = await supabase
@@ -36,7 +36,7 @@ export async function useFeedFiles(): Promise<FeedFile[]> {
     `,
     )
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(max);
 
   if (!files) return [];
 

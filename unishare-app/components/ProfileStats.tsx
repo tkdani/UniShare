@@ -2,8 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { Heart, MessageCircle, Bookmark, Upload, Car } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import { Separator } from "./ui/Separator";
+
+const moreThanOne = (num: number) => {
+  return num > 1;
+};
 
 export async function ProfileStats({
   userId,
@@ -18,51 +21,51 @@ export async function ProfileStats({
 }) {
   const supabase = await createClient();
 
-  const [
-    { count: uploadCount },
-    { count: likeCount },
-    { count: commentCount },
-    { count: saveCount },
-  ] = await Promise.all([
-    supabase
-      .from("user_files")
-      .select("*", { count: "exact", head: true })
-      .eq("owner_id", userId),
-    supabase
-      .from("file_likes")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId),
-    supabase
-      .from("comments")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId),
-    supabase
-      .from("file_saves")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId),
-  ]);
+  const [{ count: uc }, { count: lc }, { count: cc }, { count: sc }] =
+    await Promise.all([
+      supabase
+        .from("user_files")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", userId),
+      supabase
+        .from("file_likes")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("comments")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("file_saves")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId),
+    ]);
+  const uploadCount = uc ?? 0;
+  const likeCount = lc ?? 0;
+  const commentCount = cc ?? 0;
+  const saveCount = sc ?? 0;
 
   const stats = [
     {
-      label: "Upload",
+      label: moreThanOne(uploadCount) ? "Uploads" : "Upload",
       value: uploadCount || 0,
       icon: Upload,
       color: "text-primary",
     },
     {
-      label: "Like",
+      label: moreThanOne(likeCount) ? "Likes" : "Like",
       value: likeCount || 0,
       icon: Heart,
       color: "text-red-500",
     },
     {
-      label: "Comment",
+      label: moreThanOne(commentCount) ? "Comments" : "Comment",
       value: commentCount || 0,
       icon: MessageCircle,
       color: "text-blue-500",
     },
     {
-      label: "Save",
+      label: moreThanOne(saveCount) ? "Saves" : "Save",
       value: saveCount || 0,
       icon: Bookmark,
       color: "text-yellow-500",

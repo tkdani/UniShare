@@ -117,7 +117,7 @@ export default function NotesPage() {
 
   return (
     <div className="flex gap-3 justify-between">
-      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md">
+      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start">
         <div className="text-2xl font-extrabold tracking-tight text-balance">
           Notes
         </div>

@@ -53,7 +53,6 @@ export function TopUsers({ users }: TopUsersProps) {
               href={`/profile/${user.username}`}
               className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
             >
-              {/* Rank badge */}
               <div
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                   index === 0
@@ -68,7 +67,6 @@ export function TopUsers({ users }: TopUsersProps) {
                 {index + 1}
               </div>
 
-              {/* Avatar */}
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user.signedAvatarUrl || undefined} />
                 <AvatarFallback>
@@ -76,7 +74,6 @@ export function TopUsers({ users }: TopUsersProps) {
                 </AvatarFallback>
               </Avatar>
 
-              {/* User info */}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-foreground group-hover:text-primary">
                   {user.username}
@@ -88,7 +85,6 @@ export function TopUsers({ users }: TopUsersProps) {
                 )}
               </div>
 
-              {/* Upload count */}
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Upload className="h-4 w-4" />
                 <span className="font-medium">{user.uploadCount}</span>

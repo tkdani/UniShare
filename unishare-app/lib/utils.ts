@@ -4,7 +4,12 @@ import { twMerge } from "tailwind-merge";
 export function convertShortname(name: string) {
   return name
     .split(" ")
-    .map((w) => w[0])
+    .map((word) => {
+      if (word.toLowerCase().includes("tudományegyetem")) {
+        return "TE";
+      }
+      return word[0];
+    })
     .join("")
     .toUpperCase();
 }
@@ -13,7 +18,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatTimeAgo(dateString: string): string {
+export function formatTimeAgo(dateString: string | Date): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -33,7 +38,6 @@ export function getTypeColor(type: string): string {
   return colors[type.toLowerCase()] ?? "bg-muted text-muted-foreground";
 }
 
-// This check can be removed, it is just for tutorial purposes
 export const hasEnvVars =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

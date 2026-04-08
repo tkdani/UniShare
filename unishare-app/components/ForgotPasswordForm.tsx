@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import Link from "next/link";
 import { useState } from "react";
+import { Undo2 } from "lucide-react";
 
 export function ForgotPasswordForm({
   className,
@@ -31,7 +32,6 @@ export function ForgotPasswordForm({
     setError(null);
 
     try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/update-password`,
       });
@@ -62,7 +62,16 @@ export function ForgotPasswordForm({
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Reset Your Password</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl">Reset Your Password</CardTitle>
+              <Link
+                href="/login"
+                className="hover:underline flex items-center gap-0.5"
+              >
+                Back
+                <Undo2 size={14} />
+              </Link>
+            </div>
             <CardDescription>
               Type in your email and we&apos;ll send you a link to reset your
               password
@@ -76,7 +85,7 @@ export function ForgotPasswordForm({
                   <Input
                     id="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="example@example.com"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

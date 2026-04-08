@@ -23,6 +23,9 @@ export default function SavedPage() {
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const supabase = createClient();
   const user = getUser();
+  const [sortBy, setSortBy] = useState<
+    "university" | "course" | "file_name" | null
+  >(null);
 
   useEffect(() => {
     if (user) {
@@ -33,12 +36,19 @@ export default function SavedPage() {
           .eq("user_id", user.id);
         if (error) console.log(error);
         const files = data?.map((item) => item.user_files) ?? null;
-        setSavedFiles(files);
+        const sortedFiles = sortBy
+          ? [...(files ?? [])].sort((a, b) => {
+              const valA = a[sortBy] ?? "";
+              const valB = b[sortBy] ?? "";
+              return valA.localeCompare(valB);
+            })
+          : files;
+        setSavedFiles(sortedFiles);
       };
 
       fetchFiles();
     }
-  }, [user]);
+  }, [user, sortBy]);
 
   useEffect(() => {
     const fetchFile = async (url: string) => {
@@ -75,7 +85,7 @@ export default function SavedPage() {
         )}
       </div>
       <div className="w-full">
-        <div className="flex justify-between border-b pb-1">
+        <div className="border-b pb-1">
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -87,13 +97,30 @@ export default function SavedPage() {
             <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                <DropdownMenuItem>University</DropdownMenuItem>
-                <DropdownMenuItem>Course</DropdownMenuItem>
-                <DropdownMenuItem>Class</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("university");
+                  }}
+                >
+                  University
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("course");
+                  }}
+                >
+                  Course
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSortBy("file_name");
+                  }}
+                >
+                  Class
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-          <UploadFileMenu />
         </div>
         {selectedFile && <NotesToShow file={selectedFile} />}
       </div>

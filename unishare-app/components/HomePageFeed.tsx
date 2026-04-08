@@ -3,10 +3,10 @@ import { FeedCard } from "./FeedCard";
 import { useFeedFiles } from "@/lib/hooks/useFeedFiles";
 
 export default async function HomePageFeed() {
-  const files = await useFeedFiles();
+  const files = await useFeedFiles(18);
 
   return (
-    <div className="container max-w-6xl mx-auto py-8">
+    <div className="container py-8 min-w-full">
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
           <BookOpen className="h-5 w-5 text-primary-foreground" />
@@ -25,7 +25,7 @@ export default async function HomePageFeed() {
           <p className="mt-4 text-muted-foreground">No files uploaded yet.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {files.map((file) => (
             <FeedCard key={file.id} {...file} />
           ))}

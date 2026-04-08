@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/Label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Undo2 } from "lucide-react";
 
 export function SignUpForm({
   className,
@@ -86,7 +87,16 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">Sign up</CardTitle>
+            <Link
+              href="/"
+              className="hover:underline flex items-center gap-0.5"
+            >
+              Back
+              <Undo2 size={14} />
+            </Link>
+          </div>
           <CardDescription>Create a new account</CardDescription>
         </CardHeader>
         <CardContent>
