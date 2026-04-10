@@ -33,6 +33,19 @@ export default function NotesToShow({ file }: any) {
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [owner, setOwner] = useState<User | null>(null);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | null>(null);
+  const [signedFileUrl, setSignedFileUrl] = useState<any>(null);
+
+  useEffect(() => {
+    const getSigned = async () => {
+      const { data } = await supabase.storage
+        .from("files")
+        .createSignedUrl(file.url, 3600);
+
+      setSignedFileUrl(data?.signedUrl ?? null);
+    };
+
+    getSigned();
+  }, [file.url]);
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -197,28 +210,30 @@ export default function NotesToShow({ file }: any) {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <MediaViewer
-        key={file.url}
-        fileName={file.file_name}
-        upload_date={file.created_at}
-        src={file.url}
-        owner={owner}
-        avatarUrl={signedAvatarUrl}
-        type={getFileType(file.file_name)}
-        initialLiked={alreadyLiked}
-        initialLikes={file.like_count}
-        onLikeChange={(liked, totalLikes) =>
-          updateLikeCount(liked, totalLikes, file.id)
-        }
-        initialSaved={alreadySaved}
-        onSaveChange={(saved) => updateSave(saved)}
-        initialComments={initialComments}
-        onCommentAdd={(comment) => {
-          addComment(comment);
-        }}
-        postOwnerId={file.owner_id}
-        isBlocked={isBlocked}
-      />
+      {signedFileUrl && (
+        <MediaViewer
+          key={file.url}
+          fileName={file.file_name}
+          upload_date={file.created_at}
+          src={signedFileUrl}
+          owner={owner}
+          avatarUrl={signedAvatarUrl}
+          type={getFileType(file.file_name)}
+          initialLiked={alreadyLiked}
+          initialLikes={file.like_count}
+          onLikeChange={(liked, totalLikes) =>
+            updateLikeCount(liked, totalLikes, file.id)
+          }
+          initialSaved={alreadySaved}
+          onSaveChange={(saved) => updateSave(saved)}
+          initialComments={initialComments}
+          onCommentAdd={(comment) => {
+            addComment(comment);
+          }}
+          postOwnerId={file.owner_id}
+          isBlocked={isBlocked}
+        />
+      )}
     </div>
   );
 }

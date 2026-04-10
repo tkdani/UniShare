@@ -57,10 +57,6 @@ export default function UploadFileMenu() {
         ? `${universityShort}/${course}/${lesson}/${fileName}`
         : `${universityShort}/${course}/${fileName}`;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("files").getPublicUrl(filePath);
-
       const uploadFile = async () => {
         const { error } = await supabase.from("user_files").insert({
           owner_id: user.id,
@@ -69,7 +65,7 @@ export default function UploadFileMenu() {
           type: isClassType ? "Class" : "Exam",
           lesson,
           file_name: fileName,
-          url: publicUrl,
+          url: filePath,
         });
 
         if (error) console.log(error);

@@ -103,15 +103,11 @@ export default function NotesPage() {
         .select("*")
         .eq("url", url)
         .single();
+
       setSelectedFile(data);
     };
-
     if (selectedFilePath) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("files").getPublicUrl(selectedFilePath);
-
-      fetchFile(publicUrl);
+      fetchFile(selectedFilePath);
     }
   }, [selectedFilePath]);
 

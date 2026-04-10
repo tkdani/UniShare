@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 import { Button } from "@/components/ui/Button";
-import UploadFileMenu from "@/components/UploadFileMenu";
 import NotesToShow from "@/components/NotesToShow";
 import { getUser } from "@/components/UserProvider";
 
@@ -62,17 +61,13 @@ export default function SavedPage() {
     };
 
     if (selectedFilePath) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("files").getPublicUrl(selectedFilePath);
-
-      fetchFile(publicUrl);
+      fetchFile(selectedFilePath);
     }
   }, [selectedFilePath]);
 
   return (
     <div className="flex gap-3 justify-between">
-      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md">
+      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start">
         <div className="text-2xl font-extrabold tracking-tight text-balance">
           Saved
         </div>
