@@ -2,7 +2,7 @@ import { StatsCards } from "@/components/StatsCard";
 import { createClient } from "@/lib/supabase/server";
 import { TopUsers } from "@/components/TopUsers";
 import { FeedCard } from "@/components/FeedCard";
-import { getFeedFiles } from "@/lib/utils";
+import { getFeedFiles } from "@/lib/getFeedFiles";
 
 async function getStats() {
   const supabase = await createClient();
