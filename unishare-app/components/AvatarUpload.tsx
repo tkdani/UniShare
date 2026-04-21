@@ -9,11 +9,13 @@ export default function AvatarUpload({
   url,
   size,
   onUpload,
+  avatar_url,
 }: {
   uid: string | null;
   url: string | null;
   size: number;
   onUpload: (url: string) => void;
+  avatar_url: string | null;
 }) {
   const supabase = createClient();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -52,6 +54,16 @@ export default function AvatarUpload({
       const file = event.target.files[0];
       const fileExt = file.name.split(".").pop();
       const filePath = `${uid}-${Math.random()}.${fileExt}`;
+
+      if (avatar_url) {
+        const { error: removeError } = await supabase.storage
+          .from("avatars")
+          .remove([avatar_url]);
+
+        if (removeError) {
+          console.warn("Failed to remove old avatar:", removeError);
+        }
+      }
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")

@@ -1,8 +1,8 @@
 import HomePageFeed from "@/components/HomePageFeed";
-import { useUser } from "@/lib/hooks/useUser";
+import { fetchUser } from "@/lib/fetchUser";
 
 export default async function HomePage() {
-  const user = await useUser();
+  const user = await fetchUser();
   return (
     <main>
       <div className="container">

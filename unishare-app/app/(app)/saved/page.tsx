@@ -14,14 +14,14 @@ import {
 } from "@/components/ui/DropdownMenu";
 import { Button } from "@/components/ui/Button";
 import NotesToShow from "@/components/NotesToShow";
-import { getUser } from "@/components/UserProvider";
+import { useUser } from "@/components/UserProvider";
 
 export default function SavedPage() {
   const [savedFiles, setSavedFiles] = useState<UserFile[] | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const supabase = createClient();
-  const user = getUser();
+  const user = useUser();
   const [sortBy, setSortBy] = useState<
     "university" | "course" | "file_name" | null
   >(null);

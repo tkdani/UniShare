@@ -13,18 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/Card";
-type CardProp = {
-  width: number;
-  file: {
-    university: string;
-    course: string;
-    lesson: string | null;
-    like_count: number;
-    filename: string;
-    type: string;
-    url: string;
-  };
-};
 
 export default function FileCard({ width, file }: any) {
   return (

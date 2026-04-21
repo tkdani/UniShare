@@ -1,6 +1,6 @@
-import { createClient } from "../supabase/server";
+import { createClient } from "./supabase/server";
 
-export async function useUser() {
+export async function fetchUser() {
   const supabase = await createClient();
   const {
     data: { user },

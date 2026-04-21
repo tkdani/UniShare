@@ -7,14 +7,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/Collapsible";
-import { createClient } from "@/lib/supabase/server";
 import { convertShortname } from "@/lib/utils";
 
 type FileTreeItem =
   | { name: string; path: string }
   | { name: string; items: FileTreeItem[] };
 
-function convertToFileTree(files: UserFile[]): FileTreeItem[] {
+export function convertToFileTree(files: UserFile[]): FileTreeItem[] {
   const grouped: Record<string, any> = {};
 
   for (const file of files) {

@@ -1,21 +1,6 @@
-import { createClient } from "../supabase/server";
+import { createClient } from "./supabase/server";
 
-interface FeedFile {
-  id: string;
-  url: string;
-  file_name: string;
-  university: string;
-  course: string;
-  type: string;
-  lesson: string | null;
-  like_count: number;
-  created_at: string;
-  owner: { username: string; avatar_url: string | null };
-  signedAvatarUrl: string | null;
-  commentCount: number;
-}
-
-export async function useFeedFiles(max: number): Promise<FeedFile[]> {
+export async function getFeedFiles(max: number): Promise<FeedFile[]> {
   const supabase = await createClient();
 
   const { data: files } = await supabase

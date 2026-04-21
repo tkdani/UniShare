@@ -1,9 +1,8 @@
 import { StatsCards } from "@/components/StatsCard";
 import { createClient } from "@/lib/supabase/server";
-import { RecentFiles } from "@/components/RecentFiles";
 import { TopUsers } from "@/components/TopUsers";
 import { FeedCard } from "@/components/FeedCard";
-import { useFeedFiles } from "@/lib/hooks/useFeedFiles";
+import { getFeedFiles } from "@/lib/utils";
 
 async function getStats() {
   const supabase = await createClient();
@@ -222,7 +221,7 @@ async function getTopUsers() {
 export default async function StatsPage() {
   const [stats, recentFiles, topUsers] = await Promise.all([
     getStats(),
-    useFeedFiles(6),
+    getFeedFiles(6),
     getTopUsers(),
   ]);
 

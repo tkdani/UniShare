@@ -25,14 +25,12 @@ export function DeleteFileButton({ fileId }: { fileId: string }) {
       .eq("id", fileId);
 
     if (error) {
-      console.log(error);
       setLoading(false);
       return;
     }
 
     if (fileData?.url) {
       const path = fileData.url.split("/files/")[1];
-      console.log(path);
 
       await supabase.storage.from("files").remove([path]);
     }

@@ -8,10 +8,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/Breadcrumb";
 import { convertShortname } from "@/lib/utils";
-import { Comment, MediaViewer } from "./MediaViewer";
+import { MediaViewer } from "./MediaViewer";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { getUser } from "./UserProvider";
+import { useUser } from "./UserProvider";
 
 function getFileType(filename: string): "image" | "pdf" | "code" {
   if (
@@ -28,8 +28,8 @@ export default function NotesToShow({ file }: any) {
   const supabase = createClient();
   const [alreadyLiked, setAlreadyLiked] = useState<boolean>(false);
   const [alreadySaved, setAlreadySaved] = useState<boolean>(false);
-  const [initialComments, setInitialComments] = useState<Comment[]>([]);
-  const profile = getUser();
+  const [initialComments, setInitialComments] = useState<CommentType[]>([]);
+  const profile = useUser();
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [owner, setOwner] = useState<User | null>(null);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | null>(null);
@@ -101,7 +101,7 @@ export default function NotesToShow({ file }: any) {
 
       if (!comments) return;
 
-      const commentsArr: Comment[] = await Promise.all(
+      const commentsArr: CommentType[] = await Promise.all(
         comments.map(async (c) => {
           let avatarUrl: string | undefined = undefined;
           if (c.profiles?.avatar_url) {

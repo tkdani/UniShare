@@ -1,11 +1,6 @@
+import { fetchUser } from "@/lib/fetchUser";
 import { createClient } from "@/lib/supabase/server";
-import {
-  cn,
-  convertShortname,
-  formatTimeAgo,
-  getProfile,
-  getTypeColor,
-} from "@/lib/utils";
+import { cn, convertShortname, formatTimeAgo, getTypeColor } from "@/lib/utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -24,7 +19,7 @@ describe("getProfile", () => {
       },
     } as any);
 
-    const result = await getProfile();
+    const result = await fetchUser();
     expect(result).toBeNull();
   });
 
@@ -48,7 +43,7 @@ describe("getProfile", () => {
       }),
     } as any);
 
-    const result = await getProfile();
+    const result = await fetchUser();
     expect(result).toEqual(mockProfile);
   });
 });

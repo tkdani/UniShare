@@ -2,7 +2,6 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  // 1. Alap válasz létrehozása
   let supabaseResponse = NextResponse.next({
     request,
   });

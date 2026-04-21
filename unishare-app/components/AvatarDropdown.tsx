@@ -15,12 +15,12 @@ import { Button } from "./ui/Button";
 import Link from "next/link";
 import CurrentUserAvatar from "./CurrentUserAvatar";
 import { useRouter } from "next/navigation";
-import { getUser } from "./UserProvider";
+import { useUser } from "./UserProvider";
 
 export default function AvatarDropdown() {
   const router = useRouter();
   const supabase = createClient();
-  const user = getUser();
+  const user = useUser();
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -43,21 +43,36 @@ export default function AvatarDropdown() {
               <DropdownMenuItem disabled>{user.username}</DropdownMenuItem>
               {user.is_admin && (
                 <DropdownMenuItem>
-                  <Link href="/admin">Admin</Link>
-                  <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
+                  <Link
+                    href="/admin"
+                    className="flex justify-between items-center w-full"
+                  >
+                    Admin
+                    <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
+                  </Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem>
-                <Link href="/profile">Profile</Link>
-                <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+                <Link
+                  href="/profile"
+                  className="flex justify-between items-center w-full"
+                >
+                  Profile
+                  <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+                </Link>
               </DropdownMenuItem>
             </>
           ) : (
             <></>
           )}
           <DropdownMenuItem>
-            <Link href={"/docs"}>Docs</Link>
-            <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+            <Link
+              href={"/docs"}
+              className="flex justify-between items-center w-full"
+            >
+              Docs
+              <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -73,10 +88,13 @@ export default function AvatarDropdown() {
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem>
-              <Link className="w-full" href="/login">
+              <Link
+                href="/login"
+                className="flex justify-between items-center w-full"
+              >
                 Log in
+                <DropdownMenuShortcut>⌘L</DropdownMenuShortcut>
               </Link>
-              <DropdownMenuShortcut>⌘L</DropdownMenuShortcut>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>

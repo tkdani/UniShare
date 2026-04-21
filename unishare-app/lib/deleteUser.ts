@@ -1,10 +1,9 @@
 "use server";
-
-import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createClient } from "./supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function useDeleteUser(userId: string) {
+export async function deleteUser(userId: string) {
   const supabase = await createClient();
 
   const {

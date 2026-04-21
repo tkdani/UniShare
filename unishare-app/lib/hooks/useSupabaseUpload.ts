@@ -7,8 +7,6 @@ import {
 
 import { createClient } from "@/lib/supabase/client";
 
-const supabase = createClient();
-
 interface FileWithPreview extends File {
   preview?: string;
   errors: readonly FileError[];
@@ -58,6 +56,8 @@ type UseSupabaseUploadOptions = {
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>;
 
 const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
+  const supabase = useMemo(() => createClient(), []);
+
   const {
     bucketName,
     path,
@@ -194,6 +194,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     maxFileSize: maxFileSize,
     maxFiles: maxFiles,
     allowedMimeTypes,
+    onDrop,
     ...dropzoneProps,
   };
 };

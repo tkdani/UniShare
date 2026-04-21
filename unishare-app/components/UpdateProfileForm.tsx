@@ -93,7 +93,7 @@ export default function UpdateProfileForm({ user }: { user: User }) {
       }
     };
 
-    const timer = setTimeout(checkUsername, 500); // 500ms debounce
+    const timer = setTimeout(checkUsername, 500);
     return () => clearTimeout(timer);
   }, [username]);
 
@@ -109,6 +109,7 @@ export default function UpdateProfileForm({ user }: { user: User }) {
               setAvatarUrl(url);
               updateProfile({ fullname, username, avatar_url: url });
             }}
+            avatar_url={avatar_url}
           />
         </CardHeader>
         <CardContent>

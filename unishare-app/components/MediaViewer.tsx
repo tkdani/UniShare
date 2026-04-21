@@ -12,49 +12,20 @@ import {
   Copy,
   Check,
   Sparkles,
-  RefreshCw,
   Download,
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { cn, formatTimeAgo } from "@/lib/utils";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "./ui/ContextMenu";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getUser } from "./UserProvider";
+import { useUser } from "./UserProvider";
+import { CommentItem } from "./CommentItem";
+import { AiSummaryContent } from "./AiSummaryContent";
 
-const languageColors: Record<string, string> = {
-  py: "text-yellow-400",
-  python: "text-yellow-400",
-  js: "text-yellow-300",
-  javascript: "text-yellow-300",
-  ts: "text-blue-400",
-  typescript: "text-blue-400",
-  tsx: "text-blue-400",
-  jsx: "text-yellow-300",
-  rust: "text-orange-400",
-  go: "text-cyan-400",
-  java: "text-red-400",
-  rb: "text-red-500",
-  ruby: "text-red-500",
-};
-
-export interface Comment {
-  id: string;
-  authorId?: string;
-  author: string;
-  avatar?: string;
-  text: string;
-  createdAt: Date;
-}
 type SidebarTab = "comments" | "ai";
 
 export interface MediaViewerProps {
@@ -64,11 +35,10 @@ export interface MediaViewerProps {
   upload_date: string;
   owner: User | null;
   avatarUrl: string | null;
-  language?: string;
   initialLikes?: number;
   initialLiked?: boolean;
   initialSaved?: boolean;
-  initialComments?: Comment[];
+  initialComments?: CommentType[];
   onLikeChange?: (liked: boolean, totalLikes: number) => void;
   onSaveChange?: (saved: boolean) => void;
   onCommentAdd?: (comment: string) => void;
@@ -84,7 +54,6 @@ export function MediaViewer({
   upload_date,
   owner,
   avatarUrl,
-  language,
   initialLikes = 0,
   initialLiked = false,
   initialSaved = false,
@@ -99,11 +68,12 @@ export function MediaViewer({
   const [liked, setLiked] = React.useState(initialLiked);
   const [likes, setLikes] = React.useState(initialLikes);
   const [saved, setSaved] = React.useState(initialSaved);
-  const [comments, setComments] = React.useState<Comment[]>(initialComments);
+  const [comments, setComments] =
+    React.useState<CommentType[]>(initialComments);
   const [newComment, setNewComment] = React.useState("");
   const [copied, setCopied] = React.useState(false);
   const [codeContent, setCodeContent] = React.useState("");
-  const profile = getUser();
+  const profile = useUser();
   const supabase = createClient();
   const [blockedUserIds, setBlockedUserIds] = React.useState<Set<string>>(
     new Set(),
@@ -227,7 +197,7 @@ export function MediaViewer({
       .maybeSingle();
 
     if (blockData) return;
-    const comment: Comment = {
+    const comment: CommentType = {
       id: Date.now().toString(),
       author: profile?.username,
       text: newComment.trim(),
@@ -324,11 +294,6 @@ export function MediaViewer({
     }
   };
 
-  const getLanguageColor = () => {
-    if (!language) return "text-muted-foreground";
-    return languageColors[language.toLowerCase()] || "text-muted-foreground";
-  };
-
   const lineCount = type === "code" ? codeContent.split("\n").length : 0;
 
   return (
@@ -338,7 +303,7 @@ export function MediaViewer({
           <div
             className={cn(
               "flex items-center justify-center size-8 rounded-md bg-secondary",
-              getLanguageColor(),
+              "text-muted-foreground",
             )}
           >
             {getFileIcon()}
@@ -419,7 +384,7 @@ export function MediaViewer({
                       <td
                         className={cn(
                           "px-4 py-0.5 whitespace-pre",
-                          getLanguageColor(),
+                          "text-muted-foreground",
                         )}
                       >
                         {line || " "}
@@ -635,7 +600,7 @@ export function MediaViewer({
             </>
           ) : (
             <div className="flex-1 p-4 overflow-y-auto">
-              <AISummaryContent
+              <AiSummaryContent
                 summary={aiSummary}
                 isLoading={isLoadingSummary}
                 error={summaryError}
@@ -645,146 +610,6 @@ export function MediaViewer({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function CommentItem({
-  comment,
-  currentUserId,
-  onBlock,
-  isBlockedUser,
-}: {
-  comment: Comment;
-  currentUserId?: string;
-  onBlock?: (userId: string | undefined) => void;
-  isBlockedUser: boolean;
-}) {
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <div className="flex gap-3 px-4 py-3 cursor-pointer">
-          <Avatar className="size-8 shrink-0">
-            <AvatarImage src={comment.avatar} alt={comment.author} />
-            <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-              {comment.author.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline gap-2">
-              <span className="font-medium text-sm text-card-foreground">
-                <Link
-                  href={`/profile/${comment.author}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-sm font-medium text-foreground hover:text-primary hover:underline"
-                >
-                  {comment.author}
-                </Link>
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {formatTimeAgo(comment.createdAt)}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {comment.text}
-            </p>
-          </div>
-        </div>
-      </ContextMenuTrigger>
-
-      <ContextMenuContent>
-        {currentUserId && currentUserId !== comment.authorId ? (
-          <ContextMenuItem
-            variant="destructive"
-            onClick={() => onBlock?.(comment.authorId!)}
-          >
-            {isBlockedUser ? "Unblock" : "Block"}
-          </ContextMenuItem>
-        ) : (
-          <ContextMenuItem disabled>No action</ContextMenuItem>
-        )}
-      </ContextMenuContent>
-    </ContextMenu>
-  );
-}
-function AISummaryContent({
-  summary,
-  isLoading,
-  error,
-  onRegenerate,
-}: {
-  summary: string;
-  isLoading: boolean;
-  error?: string | null;
-  onRegenerate: () => void;
-}) {
-  if (isLoading && !summary) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <div className="relative">
-          <Sparkles className="size-10 text-primary animate-pulse" />
-        </div>
-        <p className="text-sm text-muted-foreground mt-4">
-          Generating summary...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-start gap-3">
-          <div className="size-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-            <Sparkles className="size-4 text-destructive" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-destructive leading-relaxed">{error}</p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Please check that AI Gateway is properly configured.
-            </p>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRegenerate}
-          className="w-full gap-2"
-        >
-          <RefreshCw className="size-4" />
-          Try Again
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-          <Sparkles className="size-4 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-card-foreground leading-relaxed">
-            {summary || "Click to generate an AI summary of this file."}
-          </p>
-          {isLoading && (
-            <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-0.5" />
-          )}
-        </div>
-      </div>
-
-      {summary && !isLoading && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRegenerate}
-          className="w-full gap-2"
-        >
-          <RefreshCw className="size-4" />
-          Regenerate
-        </Button>
-      )}
     </div>
   );
 }

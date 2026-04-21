@@ -1,4 +1,3 @@
-// app/api/download/route.ts
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get("url");

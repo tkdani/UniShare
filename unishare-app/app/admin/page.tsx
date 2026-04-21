@@ -1,9 +1,9 @@
-import { useUser } from "@/lib/hooks/useUser";
+import { fetchUser } from "@/lib/fetchUser";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
-  const profile = await useUser();
+  const profile = await fetchUser();
   if (!profile?.is_admin || !profile) redirect("/");
   const supabase = await createClient();
 

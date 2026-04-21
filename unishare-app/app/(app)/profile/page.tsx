@@ -1,12 +1,12 @@
 import { ProfileStats } from "@/components/ProfileStats";
 import UpdateProfileForm from "@/components/UpdateProfileForm";
-import { useUser } from "@/lib/hooks/useUser";
+import { fetchUser } from "@/lib/fetchUser";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
-  const user = await useUser();
+  const user = await fetchUser();
   if (!user) redirect("/login");
   const { data: following } = await supabase
     .from("follows")

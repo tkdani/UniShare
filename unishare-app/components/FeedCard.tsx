@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Heart, MessageCircle, Bookmark, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn, formatTimeAgo, getTypeColor } from "@/lib/utils";
-import { getUser } from "./UserProvider";
+import { useUser } from "./UserProvider";
 
 interface FeedCardProps {
   id: string;
@@ -28,7 +28,7 @@ interface FeedCardProps {
 export function FeedCard(props: FeedCardProps) {
   const router = useRouter();
   const supabase = createClient();
-  const profile = getUser();
+  const profile = useUser();
 
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(props.like_count);
@@ -153,7 +153,7 @@ export function FeedCard(props: FeedCardProps) {
             {props.course}
             {props.lesson && (
               <span className="text-muted-foreground/60">
-                {" · "}
+                {" - "}
                 {props.lesson}
               </span>
             )}

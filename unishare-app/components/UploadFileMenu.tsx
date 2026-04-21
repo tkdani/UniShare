@@ -21,7 +21,7 @@ import Link from "next/link";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./Dropzone";
 import { useSupabaseUpload } from "@/lib/hooks/useSupabaseUpload";
 import { convertShortname } from "@/lib/utils";
-import { getUser } from "./UserProvider";
+import { useUser } from "./UserProvider";
 
 export default function UploadFileMenu() {
   const [user, setUser] = useState<any>(null);
@@ -31,7 +31,7 @@ export default function UploadFileMenu() {
   const [course, setCourse] = useState<string | null>(null);
   const [lesson, setLesson] = useState<number | null>(null);
   const [isClassType, setIsClassType] = useState<boolean>(true);
-  const profile = getUser();
+  const profile = useUser();
 
   const isFormValid = university && course;
 

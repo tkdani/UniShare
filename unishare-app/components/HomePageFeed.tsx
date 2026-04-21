@@ -1,9 +1,9 @@
 import { BookOpen } from "lucide-react";
 import { FeedCard } from "./FeedCard";
-import { useFeedFiles } from "@/lib/hooks/useFeedFiles";
+import { getFeedFiles } from "@/lib/getFeedFiles";
 
 export default async function HomePageFeed() {
-  const files = await useFeedFiles(18);
+  const files = await getFeedFiles(18);
 
   return (
     <div className="container py-8 min-w-full">
