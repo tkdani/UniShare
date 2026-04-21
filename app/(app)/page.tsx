@@ -14,7 +14,10 @@ export default async function HomePage() {
             Hi {user.username}, good to see you again!
           </p>
         )}
-
+        <p className="mt-2 text-muted-foreground">
+          This application is developed as a thesis project by a BSc Computer Science student at Eötvös Loránd University.
+          The platform is currently under active development, and additional features and improvements are expected in the future.
+        </p>
         <p className="mt-2 text-muted-foreground">
           UniShare is a platform built for university students to share and
           discover learning materials. Upload your notes, assignments, and study
