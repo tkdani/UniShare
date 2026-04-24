@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUpIcon } from "lucide-react";
+import { ArrowDownUpIcon, TextSearch } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
@@ -18,6 +18,8 @@ import {
 import { Button } from "@/components/ui/Button";
 import UploadFileMenu from "@/components/UploadFileMenu";
 import NotesToShow from "@/components/NotesToShow";
+import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/Sheet";
 
 type seachItemType = {
   uni?: string;
@@ -111,13 +113,14 @@ export default function NotesPage() {
     }
   }, [selectedFilePath]);
 
-  return (
-    <div className="flex gap-3 justify-between">
-      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start">
-        <div className="text-2xl font-extrabold tracking-tight text-balance">
-          Notes
-        </div>
-        <Separator />
+  function SidePanel({ className }: any) {
+    return (
+      <div
+        className={cn(
+          "flex max-w-72 min-w-72 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start",
+          className,
+        )}
+      >
         <DeepSearch onSearch={setSearchItem} />
         <Separator />
         {files && (
@@ -127,44 +130,116 @@ export default function NotesPage() {
           />
         )}
       </div>
+    );
+  }
+
+  function SidePanelMobile({ className }: any) {
+    const [open, setOpen] = useState<boolean>(false);
+    return (
+      <div className={className}>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger
+            render={
+              <Button variant="outline">
+                <TextSearch />
+              </Button>
+            }
+          ></SheetTrigger>
+          <SheetContent side="left" className="rounded p-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" className="w-max">
+                    <ArrowDownUpIcon />
+                  </Button>
+                }
+              ></DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Sort</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("university");
+                    }}
+                  >
+                    University
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("course");
+                    }}
+                  >
+                    Course
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("file_name");
+                    }}
+                  >
+                    Name
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <SidePanel />
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
+  function SortItemsPanel({ className }: any) {
+    return (
+      <div className={className}>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="outline">
+                <ArrowDownUpIcon />
+              </Button>
+            }
+          ></DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Sort</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("university");
+                }}
+              >
+                University
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("course");
+                }}
+              >
+                Course
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("file_name");
+                }}
+              >
+                Name
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-3 justify-between">
+      <SidePanel className="hidden md:flex" />
       <div className="w-full">
-        <div className="flex justify-between border-b pb-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline">
-                  <ArrowDownUpIcon />
-                </Button>
-              }
-            ></DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("university");
-                  }}
-                >
-                  University
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("course");
-                  }}
-                >
-                  Course
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("file_name");
-                  }}
-                >
-                  Name
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <UploadFileMenu />
+        <div className="w-full">
+          <div className="flex justify-between border-b pb-1 w-full">
+            <SortItemsPanel className="hidden md:block" />
+            <SidePanelMobile className="md:hidden" />
+            <UploadFileMenu />
+          </div>
         </div>
         {selectedFile && <NotesToShow file={selectedFile} />}
       </div>

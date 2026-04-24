@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/InputGroup";
 import { Kbd } from "./ui/Kbd";
+import { Button } from "./ui/Button";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/Dialog";
 
 export function SearchBar() {
   const supabase = createClient();
@@ -13,6 +15,7 @@ export function SearchBar() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<UserFile[]>([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,25 +58,85 @@ export function SearchBar() {
 
   return (
     <div ref={ref} className="relative max-w-sm w-full">
-      <InputGroup className="max-w-sm">
-        <InputGroupInput
-          id="search-id"
-          placeholder="Search..."
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => query.length >= 2 && setOpen(true)}
-        />
-        <InputGroupAddon>
-          <SearchIcon className="text-muted-foreground" />
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-          <Kbd>⌘K</Kbd>
-        </InputGroupAddon>
-      </InputGroup>
+      <div className="hidden sm:block">
+        <InputGroup className="max-w-sm">
+          <InputGroupInput
+            id="search-id"
+            placeholder="Search..."
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => query.length >= 2 && setOpen(true)}
+          />
+          <InputGroupAddon>
+            <SearchIcon className="text-muted-foreground" />
+          </InputGroupAddon>
+          <InputGroupAddon align="inline-end">
+            <Kbd>⌘K</Kbd>
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
+      {/* <div className="sm:hidden">
+        <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)}>
+          <SearchIcon />
+        </Button>
+      </div> */}
+      <div className="sm:hidden">
+        <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
+          <DialogTrigger
+            render={
+              <Button variant="ghost" size="icon">
+                <SearchIcon />
+              </Button>
+            }
+          />
+          <DialogContent className="p-4 w-max" showCloseButton={false}>
+            <InputGroup className="w-max">
+              <InputGroupInput
+                autoFocus
+                placeholder="Search..."
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setOpen(true);
+                }}
+              />
+              <InputGroupAddon>
+                <SearchIcon />
+              </InputGroupAddon>
+            </InputGroup>
 
+            {/* results */}
+            {open && suggestions.length > 0 && (
+              <div className="mt-3 flex flex-col gap-1">
+                {suggestions.map((file) => (
+                  <button
+                    key={file.id}
+                    className="flex items-center gap-3 p-2 text-sm hover:bg-accent rounded-md"
+                    onClick={() => {
+                      handleSelect(file);
+                      setMobileOpen(false);
+                    }}
+                  >
+                    <FileIcon className="size-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate font-medium text-left">
+                        {file.file_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate text-left">
+                        {file.university} / {file.course}
+                        {file.lesson ? ` / ${file.lesson}` : ""}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
       {/* Dropdown */}
       {open && suggestions.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border bg-popover shadow-md z-50 overflow-hidden">

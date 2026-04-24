@@ -10,44 +10,54 @@ import { Separator } from "./ui/Separator";
 import AvatarDropdown from "./AvatarDropdown";
 import DarkModeSwitch from "./DarkModeSwitch";
 import { SearchBar } from "./SearchBar";
+import { MobileMenu } from "./MobileMenu";
 
 export default function NavBar() {
   return (
     <NavigationMenu className="mb-4">
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuLink
-            className={navigationMenuTriggerStyle()}
-            render={<Link href="/">Home</Link>}
-          />
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink
-            className={navigationMenuTriggerStyle()}
-            render={<Link href="/statistics">Statistics</Link>}
-          />
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink
-            className={navigationMenuTriggerStyle()}
-            render={<Link href="/saved">Saved</Link>}
-          />
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink
-            className={navigationMenuTriggerStyle()}
-            render={<Link href="/notes">Notes</Link>}
-          />
-        </NavigationMenuItem>
-      </NavigationMenuList>
+      {/* Desktop menu */}
+      <div className="hidden md:flex">
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              render={<Link href="/">Home</Link>}
+            />
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              render={<Link href="/statistics">Statistics</Link>}
+            />
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              render={<Link href="/saved">Saved</Link>}
+            />
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              render={<Link href="/notes">Notes</Link>}
+            />
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </div>
+      {/* Mobile menu */}
+      <div className="md:hidden">
+        <MobileMenu />
+      </div>
       <NavigationMenuList>
         <NavigationMenuItem>
           <SearchBar />
         </NavigationMenuItem>
-        <Separator orientation="vertical" />
-        <NavigationMenuItem>
-          <DarkModeSwitch />
-        </NavigationMenuItem>
+        <Separator className="hidden sm:block" orientation="vertical" />
+        <div className="hidden sm:block">
+          <NavigationMenuItem>
+            <DarkModeSwitch />
+          </NavigationMenuItem>
+        </div>
         <Separator orientation="vertical" />
         <AvatarDropdown />
       </NavigationMenuList>

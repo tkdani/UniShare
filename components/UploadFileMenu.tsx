@@ -122,7 +122,7 @@ export default function UploadFileMenu() {
                     setUniversity(e.target.value);
                   }}
                   id="uni-name"
-                  placeholder="ELTE"
+                  placeholder="Eotvos Lorand Tudomanyegyetem"
                 />
               </Field>
               <Field>
@@ -132,7 +132,7 @@ export default function UploadFileMenu() {
                     setCourse(e.target.value);
                   }}
                   id="course-name"
-                  placeholder="Webfejlesztés"
+                  placeholder="Python"
                 />
               </Field>
               <div className="flex flex-row justify-between">

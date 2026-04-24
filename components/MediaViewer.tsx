@@ -214,6 +214,19 @@ export function MediaViewer({
       handleAddComment();
     }
   };
+  const handleDelete = async (fileId: string) => {
+    const { data: fileData } = await supabase
+      .from("user_files")
+      .select("url")
+      .eq("id", fileId)
+      .single();
+
+    if (fileData?.url) {
+      const path = fileData.url.split("/files/")[1];
+
+      await supabase.storage.from("files").remove([path]);
+    }
+  };
 
   const generateSummary = async () => {
     setIsLoadingSummary(true);
@@ -346,6 +359,9 @@ export function MediaViewer({
               )}
               {copied ? "Copied" : "Copy"}
             </Button>
+          )}
+          {profile?.id == owner?.id && (
+            <Button variant="destructive">Delete</Button>
           )}
         </div>
 
