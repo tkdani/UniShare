@@ -14,6 +14,7 @@ import {
   Sparkles,
   Download,
   Clock,
+  EllipsisVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -25,6 +26,14 @@ import { useRouter } from "next/navigation";
 import { useUser } from "./UserProvider";
 import { CommentItem } from "./CommentItem";
 import { AiSummaryContent } from "./AiSummaryContent";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/DropdownMenu";
 
 type SidebarTab = "comments" | "ai";
 
@@ -35,6 +44,8 @@ export interface MediaViewerProps {
   upload_date: string;
   owner: User | null;
   avatarUrl: string | null;
+  fileId: string;
+  onDelete?: (id: string) => void;
   initialLikes?: number;
   initialLiked?: boolean;
   initialSaved?: boolean;
@@ -54,6 +65,8 @@ export function MediaViewer({
   upload_date,
   owner,
   avatarUrl,
+  fileId,
+  onDelete,
   initialLikes = 0,
   initialLiked = false,
   initialSaved = false,
@@ -85,6 +98,7 @@ export function MediaViewer({
   const [isLoadingSummary, setIsLoadingSummary] = React.useState(false);
   const [summaryGenerated, setSummaryGenerated] = React.useState(false);
   const [summaryError, setSummaryError] = React.useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -155,10 +169,12 @@ export function MediaViewer({
   };
 
   const handleCopy = async () => {
-    if (type === "code") {
-      await navigator.clipboard.writeText(src);
+    try {
+      await navigator.clipboard.writeText(codeContent);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("COPY ERROR", err);
     }
   };
 
@@ -214,17 +230,20 @@ export function MediaViewer({
       handleAddComment();
     }
   };
-  const handleDelete = async (fileId: string) => {
+  const handleDelete = async () => {
     const { data: fileData } = await supabase
       .from("user_files")
       .select("url")
       .eq("id", fileId)
       .single();
 
-    if (fileData?.url) {
-      const path = fileData.url.split("/files/")[1];
+    const { error } = await supabase
+      .from("user_files")
+      .delete()
+      .eq("id", fileId);
 
-      await supabase.storage.from("files").remove([path]);
+    if (fileData?.url) {
+      await supabase.storage.from("files").remove([fileData.url]);
     }
   };
 
@@ -311,7 +330,7 @@ export function MediaViewer({
 
   return (
     <div className={cn("flex flex-col lg:flex-row gap-4", className)}>
-      <div className="flex-1 min-w-0 flex flex-col rounded-xl border bg-card overflow-hidden max-h-[82vh]">
+      <div className="flex-1 min-w-0 flex flex-col rounded-xl border bg-card overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-3 border-b bg-secondary/30">
           <div
             className={cn(
@@ -333,51 +352,79 @@ export function MediaViewer({
             <Clock className="size-4 mr-1.5" />
             {new Date(upload_date).toLocaleDateString("en-EN")}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-            asChild
-            onClick={handleDownload}
-          >
-            <a href={src} download={fileName}>
-              <Download className="size-4 mr-1.5" />
-              Download
-            </a>
-          </Button>
-          {type === "code" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopy}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {copied ? (
-                <Check className="size-4 mr-1.5" />
-              ) : (
-                <Copy className="size-4 mr-1.5" />
+          <DropdownMenu open={menuOpen}>
+            <DropdownMenuTrigger
+              onClick={() => setMenuOpen(!menuOpen)}
+              render={
+                <Button variant="ghost" size="icon" className="rounded">
+                  <EllipsisVertical />
+                </Button>
+              }
+            ></DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  className="text-muted-foreground hover:text-foreground justify-between cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownload();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <Download className="size-4 mr-1.5" />
+                  Download
+                </DropdownMenuItem>
+                {type === "code" && (
+                  <DropdownMenuItem
+                    className="text-muted-foreground hover:text-foreground justify-between cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCopy();
+                    }}
+                  >
+                    {copied ? <Check /> : <Copy />}
+                    {copied ? "Copied" : "Copy"}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+              {profile?.id == owner?.id && (
+                <DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={async (e) => {
+                      e.preventDefault();
+
+                      await handleDelete();
+
+                      onDelete?.(fileId);
+
+                      setMenuOpen(false);
+                    }}
+                    variant={"destructive"}
+                    className="w-full cursor-pointer"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               )}
-              {copied ? "Copied" : "Copy"}
-            </Button>
-          )}
-          {profile?.id == owner?.id && (
-            <Button variant="destructive">Delete</Button>
-          )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex-1 bg-secondary/20">
           {type === "image" && (
-            <div className="flex items-center justify-center p-4 min-h-[400px]">
+            <div className="flex items-center justify-center p-4 min-h-100">
               <img
                 src={src}
                 alt={fileName}
-                className="max-w-full max-h-[600px] object-contain rounded-lg"
+                className="max-w-full max-h-150 object-contain rounded-lg"
               />
             </div>
           )}
 
           {type === "pdf" && (
-            <div className="flex flex-col items-center justify-center py-24 gap-4 min-h-[400px]">
+            <div className="flex flex-col items-center justify-center py-24 gap-4 min-h-100">
               <FileText className="size-20 text-muted-foreground" />
               <p className="text-muted-foreground">{fileName}</p>
               <Button variant="outline" asChild>
@@ -389,7 +436,7 @@ export function MediaViewer({
           )}
 
           {type === "code" && (
-            <div className="overflow-auto max-h-[700px]">
+            <div className="overflow-auto max-h-175">
               <table className="w-full text-sm font-mono">
                 <tbody>
                   {codeContent.split("\n").map((line, i) => (

@@ -38,6 +38,7 @@ export default function NotesPage() {
   const [sortBy, setSortBy] = useState<
     "university" | "course" | "file_name" | null
   >(null);
+  const [open, setOpen] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -113,7 +114,7 @@ export default function NotesPage() {
     }
   }, [selectedFilePath]);
 
-  function SidePanel({ className }: any) {
+  function SidePanel({ className, setOpen }: any) {
     return (
       <div
         className={cn(
@@ -121,20 +122,20 @@ export default function NotesPage() {
           className,
         )}
       >
-        <DeepSearch onSearch={setSearchItem} />
+        <DeepSearch onSearch={setSearchItem} setOpen={setOpen} />
         <Separator />
         {files && (
           <CollapsibleFileTree
             files={sortedFiles}
             onSetSelectedFile={setSelectedFilePath}
+            setOpen={setOpen}
           />
         )}
       </div>
     );
   }
 
-  function SidePanelMobile({ className }: any) {
-    const [open, setOpen] = useState<boolean>(false);
+  function SidePanelMobile({ className, open, setOpen }: any) {
     return (
       <div className={className}>
         <Sheet open={open} onOpenChange={setOpen}>
@@ -160,6 +161,7 @@ export default function NotesPage() {
                   <DropdownMenuItem
                     onClick={() => {
                       setSortBy("university");
+                      setOpen(true);
                     }}
                   >
                     University
@@ -167,6 +169,7 @@ export default function NotesPage() {
                   <DropdownMenuItem
                     onClick={() => {
                       setSortBy("course");
+                      setOpen(true);
                     }}
                   >
                     Course
@@ -174,6 +177,7 @@ export default function NotesPage() {
                   <DropdownMenuItem
                     onClick={() => {
                       setSortBy("file_name");
+                      setOpen(true);
                     }}
                   >
                     Name
@@ -181,7 +185,7 @@ export default function NotesPage() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <SidePanel />
+            <SidePanel setOpen={setOpen} />
           </SheetContent>
         </Sheet>
       </div>
@@ -232,16 +236,29 @@ export default function NotesPage() {
 
   return (
     <div className="flex gap-3 justify-between">
-      <SidePanel className="hidden md:flex" />
+      <SidePanel className="hidden lg:flex" />
       <div className="w-full">
         <div className="w-full">
           <div className="flex justify-between border-b pb-1 w-full">
-            <SortItemsPanel className="hidden md:block" />
-            <SidePanelMobile className="md:hidden" />
+            <SortItemsPanel className="hidden lg:block" />
+            <SidePanelMobile
+              className="lg:hidden"
+              open={open}
+              setOpen={setOpen}
+            />
             <UploadFileMenu />
           </div>
         </div>
-        {selectedFile && <NotesToShow file={selectedFile} />}
+        {selectedFile && (
+          <NotesToShow
+            file={selectedFile}
+            onDelete={(id: string) => {
+              setFiles((prev) => prev?.filter((f) => f.id !== id) ?? null);
+              setSelectedFile(null);
+              setSelectedFilePath(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

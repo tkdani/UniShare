@@ -49,7 +49,11 @@ export function convertToFileTree(files: UserFile[]): FileTreeItem[] {
   return buildTree(grouped);
 }
 
-export default function CollapsibleFileTree({ files, onSetSelectedFile }: any) {
+export default function CollapsibleFileTree({
+  files,
+  onSetSelectedFile,
+  setOpen,
+}: any) {
   const fileTree: FileTreeItem[] = convertToFileTree(files);
 
   const renderItem = (fileItem: FileTreeItem) => {
@@ -81,7 +85,9 @@ export default function CollapsibleFileTree({ files, onSetSelectedFile }: any) {
     return (
       <Button
         key={fileItem.name}
-        onClick={() => onSetSelectedFile(fileItem.path)}
+        onClick={() => {
+          (onSetSelectedFile(fileItem.path), setOpen(false));
+        }}
         variant="link"
         size="sm"
         className="text-foreground w-full justify-start gap-2"

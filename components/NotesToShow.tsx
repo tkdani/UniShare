@@ -24,7 +24,7 @@ function getFileType(filename: string): "image" | "pdf" | "code" {
   return "code";
 }
 
-export default function NotesToShow({ file }: any) {
+export default function NotesToShow({ file, onDelete }: any) {
   const supabase = createClient();
   const [alreadyLiked, setAlreadyLiked] = useState<boolean>(false);
   const [alreadySaved, setAlreadySaved] = useState<boolean>(false);
@@ -219,6 +219,8 @@ export default function NotesToShow({ file }: any) {
           owner={owner}
           avatarUrl={signedAvatarUrl}
           type={getFileType(file.file_name)}
+          fileId={file.id}
+          onDelete={onDelete}
           initialLiked={alreadyLiked}
           initialLikes={file.like_count}
           onLikeChange={(liked, totalLikes) =>

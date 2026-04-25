@@ -1,7 +1,7 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import { ArrowDownUpIcon } from "lucide-react";
+import { ArrowDownUpIcon, TextSearch } from "lucide-react";
 import { Separator } from "@/components/ui/Separator";
 import CollapsibleFileTree from "@/components/CollapsibleFileTree";
 import {
@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/Button";
 import NotesToShow from "@/components/NotesToShow";
 import { useUser } from "@/components/UserProvider";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/Sheet";
+import { cn } from "@/lib/utils";
 
 export default function SavedPage() {
   const [savedFiles, setSavedFiles] = useState<UserFile[] | null>(null);
@@ -65,59 +67,152 @@ export default function SavedPage() {
     }
   }, [selectedFilePath]);
 
-  return (
-    <div className="flex gap-3 justify-between">
-      <div className="flex max-w-md w-1/5 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start">
-        <div className="text-2xl font-extrabold tracking-tight text-balance">
-          Saved
-        </div>
-        <Separator />
+  const sortedFiles = sortBy
+    ? [...(savedFiles ?? [])].sort((a, b) => {
+        const valA = a[sortBy] ?? "";
+        const valB = b[sortBy] ?? "";
+        return valA.localeCompare(valB);
+      })
+    : savedFiles;
+
+  function SidePanel({ className }: any) {
+    return (
+      <div
+        className={cn(
+          "flex max-w-72 min-w-72 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start",
+          className,
+        )}
+      >
         {savedFiles && (
           <CollapsibleFileTree
-            files={savedFiles}
+            files={sortedFiles}
             onSetSelectedFile={setSelectedFilePath}
           />
         )}
       </div>
+    );
+  }
+
+  function SidePanelMobile({ className }: any) {
+    const [open, setOpen] = useState<boolean>(false);
+    return (
+      <div className={className}>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger
+            render={
+              <Button variant="outline">
+                <TextSearch />
+              </Button>
+            }
+          ></SheetTrigger>
+          <SheetContent side="left" className="rounded p-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" className="w-max">
+                    <ArrowDownUpIcon />
+                  </Button>
+                }
+              ></DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Sort</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("university");
+                      setOpen(true);
+                    }}
+                  >
+                    University
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("course");
+                      setOpen(true);
+                    }}
+                  >
+                    Course
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy("file_name");
+                      setOpen(true);
+                    }}
+                  >
+                    Name
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <SidePanel />
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
+  function SortItemsPanel({ className }: any) {
+    return (
+      <div className={className}>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="outline">
+                <ArrowDownUpIcon />
+              </Button>
+            }
+          ></DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Sort</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("university");
+                }}
+              >
+                University
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("course");
+                }}
+              >
+                Course
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSortBy("file_name");
+                }}
+              >
+                Name
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-3 justify-between">
+      <SidePanel className="hidden lg:flex" />
       <div className="w-full">
-        <div className="border-b pb-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline">
-                  <ArrowDownUpIcon />
-                </Button>
-              }
-            ></DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("university");
-                  }}
-                >
-                  University
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("course");
-                  }}
-                >
-                  Course
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSortBy("file_name");
-                  }}
-                >
-                  Class
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="w-full">
+          <div className="flex justify-between border-b pb-1 w-full">
+            <SortItemsPanel className="hidden lg:block" />
+            <SidePanelMobile className="lg:hidden" />
+          </div>
         </div>
-        {selectedFile && <NotesToShow file={selectedFile} />}
+        {selectedFile && (
+          <NotesToShow
+            file={selectedFile}
+            onDelete={(id: string) => {
+              setSavedFiles((prev) => prev?.filter((f) => f.id !== id) ?? null);
+              setSelectedFile(null);
+              setSelectedFilePath(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

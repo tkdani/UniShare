@@ -4,7 +4,7 @@ import { Checkbox } from "./ui/Checkbox";
 import { Field, FieldGroup, FieldLabel } from "./ui/Field";
 import { Input } from "./ui/Input";
 
-export default function DeepSearch({ onSearch }: any) {
+export default function DeepSearch({ onSearch, setOpen }: any) {
   const [uni, setUni] = useState<string | null>(null);
   const [course, setCourse] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
@@ -91,15 +91,16 @@ export default function DeepSearch({ onSearch }: any) {
         </FieldGroup>
         <Button
           className="w-1/3"
-          onClick={() =>
+          onClick={() => {
             onSearch({
               uni: uni,
               course: course,
               class: classNumber,
               name: name,
               types: types,
-            })
-          }
+            });
+            setOpen(true);
+          }}
         >
           Search
         </Button>
