@@ -14,7 +14,7 @@ import { MobileMenu } from "./MobileMenu";
 
 export default function NavBar() {
   return (
-    <NavigationMenu className="mb-4">
+    <NavigationMenu className="mb-4 sticky top-0 z-50 bg-background">
       {/* Desktop menu */}
       <div className="hidden md:flex">
         <NavigationMenuList>
