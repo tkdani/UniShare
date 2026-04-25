@@ -35,7 +35,7 @@ export default async function ProfilePage() {
     ]);
 
   return (
-    <div className="flex gap-10 items-center justify-center">
+    <div className="flex md:flex-row flex-col gap-10 items-center justify-center">
       <UpdateProfileForm user={user} />
       <ProfileStats
         userId={user.id}

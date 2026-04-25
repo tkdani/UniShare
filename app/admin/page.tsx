@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
     .limit(5);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-w-80">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <div className="grid grid-cols-3 gap-4">
