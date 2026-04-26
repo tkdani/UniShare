@@ -114,8 +114,9 @@ export function SearchBar() {
                 {suggestions.map((file) => (
                   <button
                     key={file.id}
-                    className="flex items-center gap-3 p-2 text-sm hover:bg-accent rounded-md"
-                    onClick={() => {
+                    className="cursor-pointer flex items-center gap-3 p-2 text-sm hover:bg-accent rounded-md"
+                    onPointerDown={(e) => {
+                      e.preventDefault();
                       handleSelect(file);
                       setMobileOpen(false);
                     }}
