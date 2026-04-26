@@ -143,7 +143,7 @@ export function SearchBar() {
           {suggestions.map((file) => (
             <button
               key={file.id}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-accent text-left"
+              className="cursor-pointer  w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-accent text-left"
               onClick={() => handleSelect(file)}
             >
               <FileIcon className="size-4 text-muted-foreground shrink-0" />

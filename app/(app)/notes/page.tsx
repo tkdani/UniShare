@@ -118,7 +118,7 @@ export default function NotesPage() {
     return (
       <div
         className={cn(
-          "flex max-w-72 min-w-72 flex-col gap-4 text-sm p-4 bg-sidebar rounded-md self-start",
+          "flex flex-col gap-4 text-sm p-4 bg-sidebar rounded-md w-72",
           className,
         )}
       >
@@ -146,7 +146,10 @@ export default function NotesPage() {
               </Button>
             }
           ></SheetTrigger>
-          <SheetContent side="left" className="rounded p-2">
+          <SheetContent
+            side="left"
+            className="rounded p-2 min-w-max max-w-max flex flex-col h-full"
+          >
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -185,7 +188,9 @@ export default function NotesPage() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <SidePanel setOpen={setOpen} />
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <SidePanel setOpen={setOpen} />
+            </div>
           </SheetContent>
         </Sheet>
       </div>

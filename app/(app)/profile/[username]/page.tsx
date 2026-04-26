@@ -1,72 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import {
-  FileText,
-  Heart,
-  MessageCircle,
-  Bookmark,
-  Upload,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Heart, MessageCircle, Bookmark, Upload, Users } from "lucide-react";
 import { FollowButton } from "@/components/FollowButton";
-
-async function getProfile(username: string) {
-  const supabase = await createClient();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, username, full_name, avatar_url, follower_count")
-    .eq("username", username)
-    .single();
-
-  if (!profile) return null;
-
-  let signedAvatarUrl: string | null = null;
-  if (profile.avatar_url) {
-    const { data } = await supabase.storage
-      .from("avatars")
-      .createSignedUrl(profile.avatar_url, 3600);
-    signedAvatarUrl = data?.signedUrl ?? null;
-  }
-
-  const { data: uploadedFiles } = await supabase
-    .from("user_files")
-    .select(
-      "id, file_name, course, university, type, like_count, created_at, url",
-    )
-    .eq("owner_id", profile.id)
-    .order("created_at", { ascending: false });
-
-  const { count: likeCount } = await supabase
-    .from("file_likes")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", profile.id);
-
-  const { count: commentCount } = await supabase
-    .from("comments")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", profile.id);
-
-  const { count: saveCount } = await supabase
-    .from("file_saves")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", profile.id);
-
-  return {
-    ...profile,
-    signedAvatarUrl,
-    uploadedFiles: uploadedFiles || [],
-    stats: {
-      uploads: uploadedFiles?.length || 0,
-      likes: likeCount || 0,
-      comments: commentCount || 0,
-      saves: saveCount || 0,
-    },
-  };
-}
+import UploadedFiles from "@/components/UploadedFiles";
+import { getFullProfile } from "@/lib/getFullProfile";
 
 export default async function ProfilePage({
   params,
@@ -81,7 +20,7 @@ export default async function ProfilePage({
     {
       data: { user: currentUser },
     },
-  ] = await Promise.all([getProfile(username), supabase.auth.getUser()]);
+  ] = await Promise.all([getFullProfile(username), supabase.auth.getUser()]);
 
   if (!profile) notFound();
 
@@ -172,58 +111,7 @@ export default async function ProfilePage({
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Uploaded Files ({profile.stats.uploads})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {profile.uploadedFiles.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <FileText className="h-12 w-12 text-muted-foreground/50" />
-                <p className="mt-4 text-muted-foreground">
-                  Haven't uploaded any files.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {profile.uploadedFiles.map((file) => (
-                  <Link
-                    key={file.id}
-                    href={`/notes?file=${encodeURIComponent(file.url)}`}
-                    className="group block rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-medium text-foreground group-hover:text-primary">
-                          {file.file_name}
-                        </h3>
-                        <p className="mt-1 truncate text-sm text-muted-foreground">
-                          {file.course}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {file.university}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                          {file.type}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Heart className="h-3 w-3" />
-                          {file.like_count}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <UploadedFiles profile={profile} />
       </div>
     </main>
   );

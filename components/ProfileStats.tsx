@@ -3,6 +3,7 @@ import { Heart, MessageCircle, Bookmark, Upload, Car } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import Link from "next/link";
 import { Separator } from "./ui/Separator";
+import UploadedFiles from "./UploadedFiles";
 
 const moreThanOne = (num: number) => {
   return num > 1;
@@ -13,11 +14,13 @@ export async function ProfileStats({
   followerCount,
   followingCount,
   followingList,
+  profile,
 }: {
   userId: string;
   followerCount: number;
   followingCount: number;
   followingList: { id: string; username: string; avatar_url: string | null }[];
+  profile: any;
 }) {
   const supabase = await createClient();
 
@@ -73,8 +76,8 @@ export async function ProfileStats({
   ];
 
   return (
-    <div className="flex flex-col gap-5 items-center">
-      <Card className="w-max">
+    <div className="flex flex-col gap-5 items-center w-max">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Activity
@@ -136,6 +139,7 @@ export async function ProfileStats({
           </div>
         </CardContent>
       </Card>
+      <UploadedFiles profile={profile} />
     </div>
   );
 }

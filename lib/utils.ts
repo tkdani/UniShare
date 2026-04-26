@@ -6,7 +6,7 @@ export function convertShortname(name: string) {
   return name
     .split(" ")
     .map((word) => {
-      if (word.toLowerCase().includes("tudományegyetem")) {
+      if (word.toLowerCase().includes("tudomanyegyetem")) {
         return "TE";
       }
       return word[0];

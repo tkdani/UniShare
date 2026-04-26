@@ -24,6 +24,7 @@ export function MobileMenu() {
           <Link
             className="hover:bg-accent hover:text-accent-foreground p-2"
             href="/"
+            onClick={() => setOpen(false)}
           >
             Home
           </Link>

@@ -1,6 +1,7 @@
 import { ProfileStats } from "@/components/ProfileStats";
 import UpdateProfileForm from "@/components/UpdateProfileForm";
 import { fetchUser } from "@/lib/fetchUser";
+import { getFullProfile } from "@/lib/getFullProfile";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -8,6 +9,17 @@ export default async function ProfilePage() {
   const supabase = await createClient();
   const user = await fetchUser();
   if (!user) redirect("/login");
+
+  const [
+    profile,
+    {
+      data: { user: currentUser },
+    },
+  ] = await Promise.all([
+    getFullProfile(user.username),
+    supabase.auth.getUser(),
+  ]);
+
   const { data: following } = await supabase
     .from("follows")
     .select("profiles!following_id(id, username, avatar_url)")
@@ -42,6 +54,7 @@ export default async function ProfilePage() {
         followerCount={followerCount ?? 0}
         followingCount={followingCount ?? 0}
         followingList={followingList}
+        profile={profile}
       />
     </div>
   );
