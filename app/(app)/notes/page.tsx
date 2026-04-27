@@ -39,6 +39,7 @@ export default function NotesPage() {
     "university" | "course" | "file_name" | null
   >(null);
   const [open, setOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const searchParams = useSearchParams();
 
@@ -97,7 +98,7 @@ export default function NotesPage() {
     };
 
     fetchFiles();
-  }, [searchItem]);
+  }, [searchItem, refreshKey]);
 
   useEffect(() => {
     const fetchFile = async (url: string) => {
@@ -241,7 +242,7 @@ export default function NotesPage() {
 
   return (
     <div className="flex gap-3 justify-between">
-      <SidePanel className="hidden lg:flex" />
+      <SidePanel className="hidden lg:flex" setOpen={setOpen} />
       <div className="w-full">
         <div className="w-full">
           <div className="flex justify-between border-b pb-1 w-full">
@@ -251,7 +252,7 @@ export default function NotesPage() {
               open={open}
               setOpen={setOpen}
             />
-            <UploadFileMenu />
+            <UploadFileMenu onUpload={() => setRefreshKey((k) => k + 1)} />
           </div>
         </div>
         {selectedFile && (

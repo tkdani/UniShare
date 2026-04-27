@@ -86,7 +86,8 @@ export default function CollapsibleFileTree({
       <Button
         key={fileItem.name}
         onClick={() => {
-          (onSetSelectedFile(fileItem.path), setOpen(false));
+          onSetSelectedFile(fileItem.path);
+          setOpen(false);
         }}
         variant="link"
         size="sm"

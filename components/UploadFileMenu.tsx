@@ -22,8 +22,13 @@ import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./Dropzone";
 import { useSupabaseUpload } from "@/lib/hooks/useSupabaseUpload";
 import { convertShortname } from "@/lib/utils";
 import { useUser } from "./UserProvider";
+import { useRouter } from "next/navigation";
 
-export default function UploadFileMenu() {
+export default function UploadFileMenu({
+  onUpload,
+}: {
+  onUpload?: () => void;
+}) {
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const [university, setUniversity] = useState<string | null>(null);
@@ -31,9 +36,11 @@ export default function UploadFileMenu() {
   const [course, setCourse] = useState<string | null>(null);
   const [lesson, setLesson] = useState<number | null>(null);
   const [isClassType, setIsClassType] = useState<boolean>(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const profile = useUser();
 
   const isFormValid = university && course;
+  const router = useRouter();
 
   const fileSettings = useSupabaseUpload({
     bucketName: "files",
@@ -69,6 +76,8 @@ export default function UploadFileMenu() {
         });
 
         if (error) console.log(error);
+        onUpload?.();
+        setDialogOpen(false);
       };
 
       uploadFile();
@@ -96,7 +105,7 @@ export default function UploadFileMenu() {
   return (
     <>
       {user ? (
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger
             render={
               <Button disabled={profile?.is_banned}>
