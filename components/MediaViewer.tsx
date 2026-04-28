@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Heart,
   Bookmark,
@@ -34,6 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/DropdownMenu";
+import { useEffect, useState } from "react";
 
 type SidebarTab = "comments" | "ai";
 
@@ -78,31 +78,28 @@ export function MediaViewer({
   postOwnerId,
   isBlocked,
 }: MediaViewerProps) {
-  const [liked, setLiked] = React.useState(initialLiked);
-  const [likes, setLikes] = React.useState(initialLikes);
-  const [saved, setSaved] = React.useState(initialSaved);
-  const [comments, setComments] =
-    React.useState<CommentType[]>(initialComments);
-  const [newComment, setNewComment] = React.useState("");
-  const [copied, setCopied] = React.useState(false);
-  const [codeContent, setCodeContent] = React.useState("");
+  const [liked, setLiked] = useState(initialLiked);
+  const [likes, setLikes] = useState(initialLikes);
+  const [saved, setSaved] = useState(initialSaved);
+  const [comments, setComments] = useState<CommentType[]>(initialComments);
+  const [newComment, setNewComment] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [codeContent, setCodeContent] = useState("");
   const profile = useUser();
   const supabase = createClient();
-  const [blockedUserIds, setBlockedUserIds] = React.useState<Set<string>>(
-    new Set(),
-  );
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
 
-  const [activeTab, setActiveTab] = React.useState<SidebarTab>("comments");
+  const [activeTab, setActiveTab] = useState<SidebarTab>("comments");
   // ai
-  const [aiSummary, setAiSummary] = React.useState("");
-  const [isLoadingSummary, setIsLoadingSummary] = React.useState(false);
-  const [summaryGenerated, setSummaryGenerated] = React.useState(false);
-  const [summaryError, setSummaryError] = React.useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [aiSummary, setAiSummary] = useState("");
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [summaryGenerated, setSummaryGenerated] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!profile) return;
     const fetchBlockedUsers = async () => {
       const { data } = await supabase
@@ -118,11 +115,11 @@ export function MediaViewer({
     fetchBlockedUsers();
   }, [profile]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setComments(initialComments);
   }, [initialComments]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (type === "code") {
       fetch(src)
         .then((res) => res.text())
@@ -130,10 +127,10 @@ export function MediaViewer({
     }
   }, [src, type]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLiked(initialLiked);
   }, [initialLiked]);
-  React.useEffect(() => {
+  useEffect(() => {
     setSaved(initialSaved);
   }, [initialSaved]);
 
