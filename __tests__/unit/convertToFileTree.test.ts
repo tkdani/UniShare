@@ -5,13 +5,13 @@ describe("convertToFileTree", () => {
   it("groups files into tree structure", () => {
     const files = [
       {
-        university: "Eotvos Lorand Tudományegyetem",
+        university: "Eotvos Lorand Tudomanyegyetem",
         course: "Math",
         lesson: "1",
         file_name: "file1.pdf",
       },
       {
-        university: "Eotvos Lorand Tudományegyetem",
+        university: "Eotvos Lorand Tudomanyegyetem",
         course: "Math",
         lesson: "1",
         file_name: "file2.pdf",
@@ -27,7 +27,7 @@ describe("convertToFileTree", () => {
   it("creates file leaf nodes with path", () => {
     const files = [
       {
-        university: "Eotvos Lorand Tudományegyetem",
+        university: "Eotvos Lorand Tudomanyegyetem",
         course: "Math",
         lesson: "1",
         file_name: "file1.pdf",

@@ -6,7 +6,7 @@ describe("CollapsibleFileTree", () => {
   it("reveals file after expanding folders", () => {
     const files = [
       {
-        university: "Eotvos Lorand Tudományegyetem",
+        university: "Eotvos Lorand Tudomanyegyetem",
         course: "Math",
         lesson: "1",
         file_name: "file1.pdf",

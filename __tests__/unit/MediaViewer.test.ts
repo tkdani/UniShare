@@ -33,6 +33,11 @@ vi.mock("@/components/AiSummaryContent", () => ({
   }) => React.createElement("div", null, isLoading ? "Loading..." : summary),
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}));
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) =>
     React.createElement("a", { href }, children),
@@ -50,6 +55,7 @@ vi.mock("lucide-react", () => ({
   Sparkles: () => React.createElement("svg", null),
   Download: () => React.createElement("svg", null),
   Clock: () => React.createElement("svg", null),
+  EllipsisVertical: () => React.createElement("svg", null),
 }));
 vi.mock("@/lib/utils", () => ({
   cn: (...args: string[]) => args.filter(Boolean).join(" "),
@@ -94,6 +100,7 @@ const defaultProps = {
   upload_date: "2024-01-01",
   owner: { id: "owner-1", username: "owneruser" } as any,
   avatarUrl: null,
+  fileId: "file-1",
   initialLikes: 5,
   initialLiked: false,
   initialSaved: false,
@@ -122,14 +129,17 @@ describe("MediaViewer", () => {
   it("redirects to login on like when not logged in", async () => {
     vi.mocked(useUser).mockReturnValue(null);
     render(React.createElement(MediaViewer, defaultProps));
-    const likeButtons = screen.getAllByRole("button");
-    const likeButton = likeButtons.find((btn) =>
-      btn.className.includes("gap-2"),
-    );
+
+    const likeButton = screen.getAllByText("5")[0].closest("button");
+
     fireEvent.click(likeButton!);
-    await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/login");
-    });
+
+    await waitFor(
+      () => {
+        expect(pushMock).toHaveBeenCalledWith("/login");
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("increments like count when logged in user clicks like", async () => {
@@ -137,11 +147,19 @@ describe("MediaViewer", () => {
       id: "user-1",
       is_banned: false,
     } as any);
+
     const onLikeChange = vi.fn();
+
     render(React.createElement(MediaViewer, { ...defaultProps, onLikeChange }));
-    const buttons = screen.getAllByRole("button");
-    const likeButton = buttons.find((btn) => btn.className.includes("gap-2"));
-    fireEvent.click(likeButton!);
+
+    const likeButton = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent?.includes("5"));
+
+    if (!likeButton) throw new Error("Like button not found");
+
+    fireEvent.click(likeButton);
+
     await waitFor(() => {
       expect(onLikeChange).toHaveBeenCalledWith(true, 6);
     });

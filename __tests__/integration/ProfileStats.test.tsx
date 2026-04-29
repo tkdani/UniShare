@@ -11,34 +11,35 @@ vi.mock("@/lib/supabase/server", () => ({
     }),
 }));
 
+vi.mock("lucide-react", () => ({
+  Heart: () => null,
+  MessageCircle: () => null,
+  Bookmark: () => null,
+  Upload: () => null,
+  Car: () => null,
+}));
+
+vi.mock("@/components/UploadedFiles", () => ({
+  default: () => null,
+}));
+
 describe("ProfileStats", () => {
-  const defaultProps = {
+  const testProps = {
     userId: "1",
     followerCount: 10,
     followingCount: 5,
-    followingList: [{ id: "2", username: "friend", avatar_url: null }],
+    followingList: [],
+    profile: {
+      id: "1",
+      username: "testuser",
+      avatar_url: null,
+    },
   };
 
   it("should display the correct follower count", async () => {
-    const testProps = {
-      userId: "1",
-      followerCount: 10,
-      followingCount: 5,
-      followingList: [],
-    };
-
     const Result = await ProfileStats(testProps);
     render(Result);
-
-    const countElement = screen.getByText((content, node) => {
-      const hasText = (node: Element) => node.textContent === "10";
-      const nodeHasText = hasText(node as Element);
-      const childrenDontHaveText = Array.from(node?.children || []).every(
-        (child) => !hasText(child as Element),
-      );
-      return nodeHasText && childrenDontHaveText;
-    });
-
+    const countElement = screen.getByText("10");
     expect(countElement).toBeInTheDocument();
     expect(countElement).toHaveClass("font-bold");
   });

@@ -7,6 +7,14 @@ import NavBar from "@/components/NavBar";
 vi.mock("@/components/UserProvider", () => ({
   useUser: vi.fn(),
 }));
+const openUserMenu = () => {
+  const buttons = screen.getAllByRole("button");
+  const trigger = buttons.find((btn) => btn.className.includes("rounded-full"));
+
+  if (!trigger) throw new Error("Could not find Avatar trigger button");
+
+  fireEvent.click(trigger);
+};
 
 describe("NavBar Integration Tests", () => {
   beforeEach(() => {
@@ -15,13 +23,11 @@ describe("NavBar Integration Tests", () => {
 
   it('should show "Log in" option when user is unauthenticated', () => {
     vi.mocked(useUser).mockReturnValue(null);
-
     render(<NavBar />);
 
-    const trigger = screen.getByRole("button");
-    fireEvent.click(trigger);
+    openUserMenu();
 
-    expect(screen.getByText("Log in")).toBeDefined();
+    expect(screen.getByText("Log in")).toBeInTheDocument();
     expect(screen.queryByText("Log out")).toBeNull();
   });
 
@@ -33,9 +39,11 @@ describe("NavBar Integration Tests", () => {
 
     render(<NavBar />);
 
-    fireEvent.click(screen.getByRole("button"));
-    expect(screen.getByText("Admin")).toBeDefined();
+    openUserMenu();
+
+    expect(screen.getByText("Admin")).toBeInTheDocument();
   });
+
   it('should call sign out and refresh the page when "Log out" is clicked', async () => {
     vi.mocked(useUser).mockReturnValue({
       username: "user",
@@ -43,7 +51,8 @@ describe("NavBar Integration Tests", () => {
 
     render(<NavBar />);
 
-    fireEvent.click(screen.getByRole("button"));
+    openUserMenu();
+
     const logoutBtn = screen.getByText("Log out");
     fireEvent.click(logoutBtn);
 
@@ -51,16 +60,27 @@ describe("NavBar Integration Tests", () => {
       expect(mockSignOut).toHaveBeenCalledTimes(1);
     });
   });
-  it("should display user-specific link when authenticated", () => {
+  it("should display user-specific link when authenticated", async () => {
     const mockUser = { username: "danitakacs", is_admin: false };
-    (useUser as any).mockReturnValue(mockUser);
+    vi.mocked(useUser).mockReturnValue(mockUser as any);
 
     render(<NavBar />);
 
-    fireEvent.click(screen.getByRole("button"));
+    const buttons = screen.getAllByRole("button");
 
-    expect(screen.getByText("danitakacs")).toBeDefined();
-    expect(screen.getByText("Profile")).toBeDefined();
+    const avatarButton = buttons.find((btn) =>
+      btn.className.includes("rounded-full"),
+    );
+
+    if (!avatarButton) throw new Error("Could not find Avatar trigger button");
+
+    fireEvent.click(avatarButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("danitakacs")).toBeInTheDocument();
+      expect(screen.getByText("Profile")).toBeInTheDocument();
+    });
+
     expect(screen.queryByText("Admin")).toBeNull();
   });
 });

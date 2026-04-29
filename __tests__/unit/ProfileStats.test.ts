@@ -15,6 +15,8 @@ vi.mock("lucide-react", () => ({
   Bookmark: () => React.createElement("svg", null),
   Upload: () => React.createElement("svg", null),
   Car: () => React.createElement("svg", null),
+  FileText: () => React.createElement("svg", null),
+  EllipsisVertical: () => React.createElement("svg", null),
 }));
 
 const mockSupabase = (counts: {
@@ -44,6 +46,15 @@ const defaultProps = {
   followerCount: 10,
   followingCount: 5,
   followingList: [],
+  profile: {
+    id: "1",
+    username: "testuser",
+    avatar_url: null,
+    stats: {
+      uploads: 0,
+    },
+    uploadedFiles: [],
+  },
 };
 
 describe("ProfileStats", () => {
