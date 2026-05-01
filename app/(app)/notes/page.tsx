@@ -123,7 +123,12 @@ export default function NotesPage() {
           className,
         )}
       >
-        <DeepSearch onSearch={setSearchItem} setOpen={setOpen} />
+        <DeepSearch
+          onSearch={setSearchItem}
+          setOpen={(val: boolean) => {
+            if (window.innerWidth < 1024) setOpen(val);
+          }}
+        />
         <Separator />
         {files && (
           <CollapsibleFileTree
