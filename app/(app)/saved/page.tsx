@@ -27,6 +27,7 @@ export default function SavedPage() {
   const [sortBy, setSortBy] = useState<
     "university" | "course" | "file_name" | null
   >(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -75,7 +76,7 @@ export default function SavedPage() {
       })
     : savedFiles;
 
-  function SidePanel({ className }: any) {
+  function SidePanel({ className, setOpen }: any) {
     return (
       <div
         className={cn(
@@ -87,14 +88,14 @@ export default function SavedPage() {
           <CollapsibleFileTree
             files={sortedFiles}
             onSetSelectedFile={setSelectedFilePath}
+            setOpen={setOpen}
           />
         )}
       </div>
     );
   }
 
-  function SidePanelMobile({ className }: any) {
-    const [open, setOpen] = useState<boolean>(false);
+  function SidePanelMobile({ className, open, setOpen }: any) {
     return (
       <div className={className}>
         <Sheet open={open} onOpenChange={setOpen}>
@@ -144,7 +145,7 @@ export default function SavedPage() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <SidePanel />
+            <SidePanel setOpen={setOpen} />
           </SheetContent>
         </Sheet>
       </div>
@@ -195,12 +196,16 @@ export default function SavedPage() {
 
   return (
     <div className="flex gap-3 justify-between">
-      <SidePanel className="hidden lg:flex" />
+      <SidePanel className="hidden lg:flex" setOpen={setOpen} />
       <div className="w-full">
         <div className="w-full">
           <div className="flex justify-between border-b pb-1 w-full">
             <SortItemsPanel className="hidden lg:block" />
-            <SidePanelMobile className="lg:hidden" />
+            <SidePanelMobile
+              className="lg:hidden"
+              open={open}
+              setOpen={setOpen}
+            />
           </div>
         </div>
         {selectedFile && (
